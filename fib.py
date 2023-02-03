@@ -264,7 +264,7 @@ class FibonacciHeap:
           
     
 
-'''
+
 ## for testing purposes
 if __name__ == '__main__':
     fib_heap = FibonacciHeap()
@@ -309,4 +309,4 @@ if __name__ == '__main__':
     # fib_heap.insert(8)
 
 
-# insert, delete, and find '''
+# insert, delete, and find 
