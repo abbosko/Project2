@@ -1,4 +1,5 @@
 import random
+from tkinter import *
 
 # picks the height for a node
 def pickHeight():
@@ -6,12 +7,14 @@ def pickHeight():
     while (random.choice([True, False])):
         height += 1
     return height
-        
+
+# skip list node class
 class Node:
     def __init__(self, key=None, height=0):
         self.key = key
         self.next = [None] * height
 
+# skip list class
 class SkipList:
 
     def __init__(self):
@@ -35,7 +38,7 @@ class SkipList:
         return path
 
     # returns an element with the given key
-    def search(self, key, path=None):
+    def find(self, key, path=None):
         
         # finds path if none is given
         if path == None:
@@ -61,19 +64,17 @@ class SkipList:
             self.head.next.append(None)
         
         # inserts node and updates pointers in each height level the node reaches
-        # doesn't insert duplicates... rip
         path = self.getPath(key)
-        if self.search(key, path) == None:
-            for i in range(len(newNode.next)):
-                newNode.next[i] = path[i].next[i]
-                path[i].next[i] = newNode
+        for i in range(len(newNode.next)):
+            newNode.next[i] = path[i].next[i]
+            path[i].next[i] = newNode
     
     # removes a node with the given key
     def remove(self, key):
 
         # updates pointers around each height level the node is in
         path = self.getPath(key)
-        nodeToRemove = self.search(key, path)
+        nodeToRemove = self.find(key, path)
         if nodeToRemove != None:
             for i in range(len(nodeToRemove.next)):
                 path[i].next[i] = nodeToRemove.next[i]
@@ -88,7 +89,7 @@ class SkipList:
 #     print()
 
 #     for i in range(50):
-#         found = sl.search(i)
+#         found = sl.find(i)
 #         if (found == None):
 #             print(str(i) + " not found")
 #         else:
@@ -96,6 +97,16 @@ class SkipList:
     
 #     print()
 
+#     for i in range(len(sl.head.next)):
+#         print("Level " + str(i))
+#         temp = sl.head.next[i]
+#         while (temp != None):
+#             print(temp.key)
+#             temp = temp.next[i]
+    
+#     for i in range(25):
+#         sl.remove(i)
+    
 #     for i in range(len(sl.head.next)):
 #         print("Level " + str(i))
 #         temp = sl.head.next[i]
