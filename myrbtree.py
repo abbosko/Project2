@@ -1,7 +1,7 @@
 import sys
 from tkinter import *
 
-#initialice/defining node
+#initialize/defining node
 class RBNode():
     def __init__(self, val):
         self.val = val
@@ -10,7 +10,7 @@ class RBNode():
         self.right = None  #right node
         self.color = 1     #1=red , 0 = black
  
- #intialice/defining red black tree
+ #intialize/defining red black tree
 class RedBlackTree():
     def __init__(self):
         self.NULL = RBNode(0)
@@ -111,7 +111,7 @@ class RedBlackTree():
         v.parent = u.parent
     
  
-    # Node deletion
+    #node deletion
     def remove_node_helper(self, node, val):
         c = self.NULL
 
@@ -154,7 +154,7 @@ class RedBlackTree():
         if b_original_color == 0:
             self.balance_remove(a)
  
-    # Balance the tree after insertion
+    #balance the tree after insertion
     def balance_insertion(self, k):
         while k.parent.color == 1:                  #parent of k is red
             if k.parent == k.parent.parent.right:
@@ -190,7 +190,7 @@ class RedBlackTree():
                 break
         self.root.color = 0
  
-    # Print
+    #printing 
     def print_tree_helper(self, node, indent, last):
         if node != self.NULL:
             sys.stdout.write(indent)
