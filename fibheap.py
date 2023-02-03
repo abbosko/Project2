@@ -1,7 +1,7 @@
 import math 
 
 
-class Node:
+class FibNode:
     def __init__(self, key):
         self.key = key
         self.degree = 0
@@ -33,14 +33,23 @@ class FibonacciHeap:
         node.left.right = node.right
         node.right.left = node.left
 
-    def addToTree(self, parent, node):   # when consolidating, this adds the smaller tree to the bigger tree
-        self.removeFromRootList(parent)
-        parent.left = parent
-        parent.right = parent
-        self.addToChildList(node, parent)
-        node.degree +=1 
-        parent.parent = node
-        parent.mark = False
+    def addToTree(self, bigger, smaller):   # when consolidating, this adds the smaller tree to the bigger tree
+        self.removeFromRootList(bigger)
+        if( smaller.right == smaller):
+            self.min = smaller
+        bigger.left = bigger
+        bigger.right = bigger
+        bigger.parent = smaller
+        if(smaller.child == None):
+            smaller.child = bigger
+        bigger.right = smaller.child 
+        bigger.left = smaller.child.left
+        smaller.child.left.right = bigger
+        smaller.child.left = bigger
+        if bigger.key < smaller.child.key:
+            smaller.child = bigger
+        smaller.degree+=1
+        smaller.mark = False
         
 
     def addToChildList(self, parent, node):
@@ -71,7 +80,7 @@ class FibonacciHeap:
     def insert(self, key):
 
         # make new node, set pointers to itself for doubly linked
-        newNode = Node(key)
+        newNode = FibNode(key)
         newNode.left = newNode
         newNode.right = newNode
 
@@ -103,24 +112,32 @@ class FibonacciHeap:
             node = node.right
 
     def extract_min(self):
-        oldMin = self.min
-    
+        
+
         if (self.min == None):
             print("Heap empty, can't extract")
 
         else:
+
+            oldMin = self.min
             if(oldMin.child != None):
                 # if the min has children
                 #for every child of old minimum add to root list
                 children = [x for x in self.iterate(oldMin.child)]
-                for i in range(0, len(children)):
-                    self.addToRootList(children[i])
+
+                for i in children:
+                    self.addToRootList(i)
+     
+                    if( i.key <  self.min.key):
+                        self.min = i
                     # self.removeFromChildList(children[i])
-                    children[i].parent = None
-                
+                    i.parent = None
+    
 
             self.removeFromRootList(oldMin)
+            self.min = oldMin.right
             if( oldMin == oldMin.right):
+
                     self.min = None
                     
             else: 
@@ -133,29 +150,38 @@ class FibonacciHeap:
     def consolidate(self):
         aux = [None] * int(math.log(self.nodeCount) * 2)    # I found this online idk
         # aux = ((math.frexp(self.nodeCount)[1] - 1) + 1) * [None]
+
+        #get root list
         array = [node for node in self.iterate(self.min)]
+
+     
         while array != []:
             first = array[0]
             degree = first.degree
             array.remove(first)
             while aux[degree] is not None:
+                #if already have tree of that degree
                 second = aux[degree]
-                if first.key > second.key:  # this is to ensure that the second is larger than the first
+                #grab that value 
+                if first.key > second.key: # this is to ensure that the second is larger than the first
                     temp = first
                     first = second
                     second = temp
-                self.addToTree(second, first)
-                aux[degree] = None
-                degree += 1
+                self.addToTree(second, first) # link tree
+                aux[degree] = None #reset to 0
+                degree += 1    
             aux[degree] = first
+        self.min = None
         # for i in array:
         #    self.addToRootList(i)
         # self.min = None
         # Find min node
+       
         for i in aux:
             if i is not None:
-                if i.key < self.min.key:
-                    print(i)
+  
+                if self.min is None or i.key < self.min.key:
+ 
                     self.min = i
 
     
@@ -202,29 +228,29 @@ class FibonacciHeap:
     
     
     def find(self, start,  val):
-        
-        
         ptr = start
-        found = False
+   
         ptr.color = 'Y'
 
 
+
         if(ptr.key == val):
-            found == True
+            print("found it")
             ptr.color = 'N'
             self.finder = ptr
             return 
 
-        if(found == False):
+        else:
             if(ptr.child != None):
                 self.find(start.child, val)
             if (ptr.right.color != 'Y'):
                 self.find(start.right, val);
-
+        ptr.color = 'N'
         
        
     
     def delete(self, val):
+
         if( self.min == None):
             print("Error: Heap Empty")
         
@@ -232,14 +258,17 @@ class FibonacciHeap:
             self.extract_min()
 
         else:
+            self.finder = None
             self.find(self.min, val)
             node = self.finder
+            
        
             if (node == None):
                 print("not found")
             else:
                 # Decreasing the value of the node to new min
                 self.decrease_key(node, self.min.key - 1 )
+                print('min', self.min.key)
                 # Calling Extract_min function to delete node
                 self.extract_min()
 
@@ -264,7 +293,7 @@ class FibonacciHeap:
           
     
 
-'''
+
 ## for testing purposes
 if __name__ == '__main__':
     fib_heap = FibonacciHeap()
@@ -287,7 +316,7 @@ if __name__ == '__main__':
     fib_heap.insert(23)
     fib_heap.insert(17)
     fib_heap.insert(3)
-    fib_heap.insert(18)
+    fib_heap.insert(8)
 
    
     
@@ -297,9 +326,17 @@ if __name__ == '__main__':
 
     print("deleting 46")
 
+
     fib_heap.delete(46)
     fib_heap.display()
 
+    print("deleting 17")
+    fib_heap.delete(17)
+    fib_heap.display()
+
+    print('delete 3')
+    fib_heap.delete(3)
+    fib_heap.display()
 
    
     ## fib_heap.insert(2)
