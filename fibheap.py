@@ -1,6 +1,5 @@
 import math 
 
-
 class FibNode:
     def __init__(self, key):
         self.key = key
@@ -9,8 +8,6 @@ class FibNode:
         self.color = 'N'     # for find
         self.mark = False    #flag for find 
 
-    
-        
     
 class FibonacciHeap:
     def __init__(self):
@@ -188,15 +185,12 @@ class FibonacciHeap:
     def cut(self, node, parent):
         #no longer a child so remove from child list 
         self.removeFromChildList(parent, node)
-        parent.degree -+1
+        parent.degree -=1
         self.addToRootList(node)
         node.parent = None
         node.mark = False
  
-        
     
-       
-
     def cascadeCut(self, node):
         ptr = node.parent
         if (ptr != None):
@@ -229,13 +223,9 @@ class FibonacciHeap:
     
     def find(self, start,  val):
         ptr = start
-   
         ptr.color = 'Y'
 
-
-
         if(ptr.key == val):
-            print("found it")
             ptr.color = 'N'
             self.finder = ptr
             return 
@@ -268,13 +258,10 @@ class FibonacciHeap:
             else:
                 # Decreasing the value of the node to new min
                 self.decrease_key(node, self.min.key - 1 )
-                print('min', self.min.key)
                 # Calling Extract_min function to delete node
                 self.extract_min()
 
-
-
-
+ 
     def display(self):
         ptr1 = self.min
         if (ptr1 == None):
@@ -291,25 +278,15 @@ class FibonacciHeap:
             print()
             print("Node count", self.nodeCount)
           
-    
 
 
-## for testing purposes
+
+'''## for testing purposes
 if __name__ == '__main__':
     fib_heap = FibonacciHeap()
     fib_heap.insert(7)
     fib_heap.insert(30)
     fib_heap.insert(24)
-    
-  
-    #fib_heap.consolidate()
-    #fib_heap.display()
-
-    # fib_heap.extract_min()
-    # print(" extracting min")
-    # fib_heap.display()
-
-   
     fib_heap.insert(26)
     fib_heap.insert(35)
     fib_heap.insert(46)
@@ -318,32 +295,25 @@ if __name__ == '__main__':
     fib_heap.insert(3)
     fib_heap.insert(8)
 
-   
+    fib_heap.display()
     
-    # fib_heap.extract_min()
-    # print(" extracting min: ", fib_heap.extract_min())
+    fib_heap.delete(26)
     fib_heap.display()
 
-    print("deleting 46")
-
-
-    fib_heap.delete(46)
+    fib_heap.delete(8)
     fib_heap.display()
 
-    print("deleting 17")
+    fib_heap.delete(35)
+    fib_heap.display()
+
     fib_heap.delete(17)
     fib_heap.display()
-
-    print('delete 3')
+    
     fib_heap.delete(3)
     fib_heap.display()
 
+    fib_heap.delete(23)
+    fib_heap.display()
    
-    ## fib_heap.insert(2)
-    # fib_heap.insert(8)
-    # fib_heap.insert(5)
-    # fib_heap.insert(2)
-    # fib_heap.insert(8)
-
 
 # insert, delete, and find '''
