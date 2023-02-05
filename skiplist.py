@@ -9,7 +9,7 @@ def pickHeight():
     return height
 
 # skip list node class
-class Node:
+class SkipNode:
     def __init__(self, key=None, height=0):
         self.key = key
         self.next = [None] * height
@@ -18,7 +18,7 @@ class Node:
 class SkipList:
 
     def __init__(self):
-        self.head = Node()
+        self.head = SkipNode()
 
     # gets an array of the last node on each level whose key is less than the given key
     # helper function
@@ -57,7 +57,7 @@ class SkipList:
     def insert(self, key):
 
         # creates a new node with the given key
-        newNode = Node(key, pickHeight())
+        newNode = SkipNode(key, pickHeight())
         
         # adds another level of pointer to the head, if necessary
         while len(self.head.next) < len(newNode.next):
@@ -78,41 +78,61 @@ class SkipList:
         if nodeToRemove != None:
             for i in range(len(nodeToRemove.next)):
                 path[i].next[i] = nodeToRemove.next[i]
+    
+    # returns list of nodes in row r
+    def getRow(self, r):
+
+        # return None if r > height of SkipList
+        if r > len(self.head.next) - 1:
+            return None
+        
+        # iterate through given row r
+        nodes = []
+        nodePtr = self.head
+        while nodePtr.next[r] != None:
+            nodePtr = nodePtr.next[r]
+            nodes.append(nodePtr)
+        return nodes
+
+    # return list of lists of nodes in each row
+    def getRows(self):
+
+        # return None if there are no nodes
+        if len(self.head.next) == 0:
+            return None
+
+        # call getRow for each row in skip list and add to rows list.
+        rows = []
+        for i in range(len(self.head.next)):
+            rows.append(self.getRow(i))
+        return rows
 
 # def main():
 #     sl = SkipList()
-#     for i in range(10):
-#         newInt = random.randint(0, 50)
-#         sl.insert(newInt)
-#         print("inserting " + str(newInt))
-
-#     print()
-
-#     for i in range(50):
-#         found = sl.find(i)
-#         if (found == None):
-#             print(str(i) + " not found")
-#         else:
-#             print(str(found.key) + " found at level " + str(len(found.next) - 1))
+#     for i in range (1, 51):
+#         sl.insert(i)
+#         print(str(i) + " inserted at row " + str(len(sl.find(i).next) - 1))
     
 #     print()
+#     print()
 
-#     for i in range(len(sl.head.next)):
-#         print("Level " + str(i))
-#         temp = sl.head.next[i]
-#         while (temp != None):
-#             print(temp.key)
-#             temp = temp.next[i]
-    
-#     for i in range(25):
-#         sl.remove(i)
-    
-#     for i in range(len(sl.head.next)):
-#         print("Level " + str(i))
-#         temp = sl.head.next[i]
-#         while (temp != None):
-#             print(temp.key)
-#             temp = temp.next[i]
+#     for i in range (0, 11):
+#         temp = sl.getRow(i)
+#         if temp != None:
+#             print("Row " + str(i), end=': ')
+#             for node in temp:
+#                 print(str(node.key), end=' ')
+#             print()
+
+#     print()
+#     print()
+
+#     rows = sl.getRows()
+#     for i in range(len(rows)):
+#         print("Row " + str(i), end=': ')
+#         for node in rows[i]:
+#             print(str(node.key), end=' ')
+#         print()
 
 # if __name__ == "__main__":
 #     main()
