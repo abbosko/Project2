@@ -91,7 +91,7 @@ def animateLinkedList(data, canvas: Canvas):
 # Skip List Code
 
 # picks the height for a node
-def pickSkipNodeHeight():
+def pickHeight():
     height = 1
     while (random.choice([True, False])):
         height += 1
@@ -125,20 +125,20 @@ class SkipList:
     # returns an element with the given key
     def find(self, key, path=None):
         # finds path if none is given
-        if path == None:
+        if(path == None):
             path = self.getPath(key)
         # checks to see if the element we landed on in the path is the correct element
-        if len(path) > 0:
+        if(len(path) > 0):
             candidate = path[0].next[0]
-            if candidate != None and candidate.key == key:
+            if(candidate != None and candidate.key == key):
                 return candidate
         # returns none if element not found
-        return None
+        return None 
 
     # inserts a new node with the given key (won't insert a duplicate... yet)
     def insert(self, key):
         # creates a new node with the given key
-        newNode = SkipNode(key, pickSkipNodeHeight())
+        newNode = SkipNode(key, pickHeight())
         # adds another level of pointer to the head, if necessary
         while len(self.head.next) < len(newNode.next):
             self.head.next.append(None)
@@ -153,9 +153,33 @@ class SkipList:
         # updates pointers around each height level the node is in
         path = self.getPath(key)
         nodeToRemove = self.find(key, path)
-        if nodeToRemove != None:
+        if(nodeToRemove != None):
             for i in range(len(nodeToRemove.next)):
                 path[i].next[i] = nodeToRemove.next[i]
+    
+    # returns list of nodes in row r
+    def getRow(self, r):
+        # return None if r > height of SkipList
+        if(r > len(self.head.next) - 1):
+            return None
+        # iterate through given row r
+        nodes = []
+        nodePtr = self.head
+        while nodePtr.next[r] != None:
+            nodePtr = nodePtr.next[r]
+            nodes.append(nodePtr)
+        return nodes
+
+    # return list of lists of nodes in each row
+    def getRows(self):
+        # return None if there are no nodes
+        if(len(self.head.next) == 0):
+            return None
+        # call getRow for each row in skip list and add to rows list.
+        rows = []
+        for i in range(len(self.head.next)):
+            rows.append(self.getRow(i))
+        return rows
     
     # draws SkipList on canvas
     def drawSkiplist(self, canvas: Canvas):
