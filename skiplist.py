@@ -46,7 +46,7 @@ class SkipList:
         # returns none if element not found
         return None 
 
-    # inserts a new node with the given key (won't insert a duplicate... yet)
+    # inserts a new node with the given key
     def insert(self, key):
         # creates a new node with the given key
         newNode = SkipNode(key, pickHeight())

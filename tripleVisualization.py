@@ -1,4 +1,9 @@
-# Scott Ratchford
+# CS 470 Team 2, February 2023
+# Skip List - Sam Gaines and Scott Ratchford
+# Red-Black Tree -
+# Fibbonaci Heap - 
+# Animations - Scott Ratchford
+
 from tkinter import *
 import random
 import time
@@ -9,9 +14,6 @@ import sys
 
 class LinkedList:
     def __init__(self):
-        self.next = None
-
-    def removeNext(self):
         self.next = None
     
     def changeNext(self, next):
@@ -102,6 +104,9 @@ class SkipNode:
     def __init__(self, key=None, height=0):
         self.key = key
         self.next = [None] * height
+    
+    def __str__(self) -> str:
+        return "[" + str(self.key) + "]"
 
 # skip list class
 class SkipList:
@@ -135,7 +140,7 @@ class SkipList:
         # returns none if element not found
         return None 
 
-    # inserts a new node with the given key (won't insert a duplicate... yet)
+    # inserts a new node with the given key
     def insert(self, key):
         # creates a new node with the given key
         newNode = SkipNode(key, pickHeight())
@@ -147,7 +152,7 @@ class SkipList:
         for i in range(len(newNode.next)):
             newNode.next[i] = path[i].next[i]
             path[i].next[i] = newNode
-    
+
     # removes a node with the given key
     def remove(self, key):
         # updates pointers around each height level the node is in
@@ -156,12 +161,12 @@ class SkipList:
         if(nodeToRemove != None):
             for i in range(len(nodeToRemove.next)):
                 path[i].next[i] = nodeToRemove.next[i]
-    
+
     # returns list of nodes in row r
     def getRow(self, r):
         # return None if r > height of SkipList
-        if(r > len(self.head.next) - 1):
-            return None
+        # if(r > len(self.head.next) - 1):  # return None is not helpful in this instance
+        #     return None
         # iterate through given row r
         nodes = []
         nodePtr = self.head
@@ -181,9 +186,23 @@ class SkipList:
             rows.append(self.getRow(i))
         return rows
     
-    # draws SkipList on canvas
-    def drawSkiplist(self, canvas: Canvas):
-        pass
+    def drawSkipList(self, canvas: Canvas):
+        allRows = self.getRows()
+        maxLen = 0
+        longestRow = 0
+        numRows = len(allRows)
+        for index, row in enumerate(allRows):
+            print("Row " + str(index) + ": " + str(row))    # DEBUG
+            if(len(row) > maxLen):
+                maxLen = len(row)
+                longestRow = index
+        # DEBUG
+        printStr = ""
+        for index, row in enumerate(reversed(allRows)):
+            printStr = ""
+            for index, node in enumerate(row):
+                printStr += str(node) + " "
+            print(printStr)
 
 # Starts all data structure animations on all canvases
 def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
