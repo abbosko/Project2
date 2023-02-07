@@ -30,6 +30,17 @@ class LinkedList:
             newNode = Node(value, currNode.next)
             currNode.next = newNode
 
+    def remove(self, value) -> bool:
+        currNode = self
+        while(currNode.next != None and currNode.next.value != value):
+            currNode = currNode.next
+        if(currNode.next == None):
+            return False
+        if(currNode.next.value == value):
+            currNode.next = currNode.next.next
+            return True
+        return False
+
     def __len__(self):
         return len(self.asList())
 
@@ -83,13 +94,6 @@ class Node(LinkedList):
             canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY+math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
             canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY-math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
 
-def animateLinkedList(data, canvas: Canvas):
-    testLinkedList = LinkedList()
-    for num in data:
-        testLinkedList.insert(num)
-        testLinkedList.drawLinkedList(canvas)
-
-
 # Skip List Code
 
 # picks the height for a node
@@ -107,6 +111,11 @@ class SkipNode:
     
     def __str__(self) -> str:
         return "[" + str(self.key) + "]"
+
+    def __eq__(self, __o: object) -> bool:
+        if(type(__o) != SkipNode):  # cannot be equal to another type of object
+            return False
+        return self.key == __o.key
 
     def drawSkipNode(self, canvas: Canvas, x, y, color):
         radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on length of key
@@ -204,55 +213,56 @@ class SkipList:
                 maxLen = len(row)
         padX = 50
         padY = 50
+        topY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1))) + padY
+        bottomY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * len(allRows)) + padY
         # create tuples of (key, x) to determine the x position on upper rows
         bottomRow = []
         for rowIndex, node in enumerate(allRows[0]):    # determine x values for the bottom row
             currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX
             bottomRow.append((node.key, currX)) # tuple of (key, x)
+            canvas.create_line(currX, bottomY, currX, topY, fill="black") # draw vertical lines between nodes
 
-        # matrix of tuples of (node.key, x, y)
-        nodeMatrix = [[0]*len(bottomRow) for i in range(len(allRows))]
-        # print(nodeMatrix)
+        leftX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1))) + padX
+        rightX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (len(allRows[0]))) + padX
+        for colIndex, col in enumerate(allRows):
+            currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (colIndex + 1)) + padY
+            canvas.create_line(leftX, currY, rightX, currY, fill="black") # draw horizontal lines between nodes
 
+        # create blank 2D list of tuples of (SkipNode, x, y)
+        nodeMatrix = [[None]*len(bottomRow) for i in range(len(allRows))]
         for index, row in enumerate(reversed(allRows)):
             currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (index + 1)) + padY
             for rowIndex, node in enumerate(row):
                 # currX = (((getCanvasX(canvas) - 2 * padX) / (len(row) + 1)) * (rowIndex + 1)) + padX  # old row-relative x formula
                 color = "yellow"
                 found = True
-                for index, element in enumerate(bottomRow):
+                for bottomIndex, element in enumerate(bottomRow):
                     if(element[0] == node.key):
                         node.drawSkipNode(canvas, element[1], currY, color)
+                        nodeMatrix[index][bottomIndex] = (node, currX, currY)
                         found = True
-                        break
-                if(not found):
+                if(not found):  # found is a bool, so duplicates do not yet appear
                     currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX  # for now, currX is determined per row
                     node.drawSkipNode(canvas, currX, currY, color)
+                    nodeMatrix[rowIndex][bottomIndex] = (node, currX, currY)
 
-                # # draw arrows between each node
-                # nextX = (index + 1) * ((getCanvasX(canvas) - padX) / len(data)) + padX
-                # nextY = (getCanvasY(canvas) - padY) / 2
-                # arrowLength = (nextX - currX) * 0.5    # arrow length as a function of line length
-                # canvas.create_line(currX+radius, currY, nextX-radius, nextY, fill="black")
-                # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY+math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
-                # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY-math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
-
-# Starts all data structure animations on all canvases
-def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
-    # create Skip List
-    # create RBT
-    # create Fib Heap
-
-    skipList1 = SkipList()
-    linkedList2 = LinkedList()  # DEBUG
-    linkedList3 = LinkedList()  # DEBUG
+# Animates the insertion of every data point into each of the three data structures
+def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
+    global skipList
+    # global redBlackTree
+    # global fibHeap
+    
+    # reset data structures
+    skipList = SkipList()
+    # redBlackTree = RedBlackTree()
+    # fibHeap = FibHeap()
 
     for num in data:
         # dataStructure.insert(num)
         # dataStructure.drawDataStructure(canvasX)
         # root.update()
-        skipList1.insert(num)
-        skipList1.drawSkipList(canvas1)
+        skipList.insert(num)
+        skipList.drawSkipList(canvas1)
         root.update()
         linkedList2.insert(num)
         linkedList2.drawLinkedList(canvas2)
@@ -261,6 +271,28 @@ def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
         linkedList3.drawLinkedList(canvas3)
         root.update()
         root.after(delaySelect.get())   # delay after every data structure is updated
+
+# Animates the removal of a specified data point from each of the three data structures
+def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
+    global skipList
+    # global redBlackTree
+    # global fibHeap
+
+    # dataStructure.remove(num)
+    # dataStructure.drawDataStructure(canvasX)
+    # root.update()
+
+    skipList.remove(num)
+    skipList.drawSkipList(canvas1)
+    root.update()
+    linkedList2.remove(num)
+    linkedList2.drawLinkedList(canvas2)
+    root.update()
+    linkedList3.remove(num)
+    linkedList3.drawLinkedList(canvas3)
+    root.update()
+    root.after(delaySelect.get())   # delay after every data structure is updated
+    return
 
 def getCanvasX(canvas: Canvas):
     return canvas.winfo_width()
@@ -297,6 +329,12 @@ dataString = StringVar()    # used to update dataViewLabel
 # Global variables
 canvasWidth = 800
 canvasHeight = 400
+# Create all data structures
+skipList = SkipList()  # create Skip List
+# redBlackTree = RedBlackTree() # create RBT
+# fibHeap = fibHeap()   # create Fib Heap
+linkedList2 = LinkedList()  # DEBUG
+linkedList3 = LinkedList()  # DEBUG
 
 # canvas1 label
 canvas1Label = Label(root, text="Skip List", bg="white", fg="black")
@@ -333,7 +371,7 @@ dataViewLabel.config(font=("Courier", 16))
 buttonWindow = Frame(buttonOptionWindow, width=canvasWidth, height=100, bg="white")
 buttonWindow.grid(row=1, column=0, padx=5, pady=5)
 # Display output when button pressed
-testButton = Button(buttonWindow, text="Start All", command=lambda : startAll(data, canvas1, canvas2, canvas3), bg="green", fg="white")
+testButton = Button(buttonWindow, text="Start All", command=lambda : populateAll(data, canvas1, canvas2, canvas3), bg="green", fg="white")
 testButton.grid(row=0, column=0, padx=5, pady=5)
 # Generate data when button pressed
 randomButton = Button(buttonWindow, text="Randomize Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg="blue", fg="white")
