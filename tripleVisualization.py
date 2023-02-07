@@ -108,7 +108,7 @@ class SkipNode:
     def __str__(self) -> str:
         return "[" + str(self.key) + "]"
 
-    def drawSkipNode(self, canvas: Canvas, x, y, radius, color):
+    def drawSkipNode(self, canvas: Canvas, x, y, color):
         radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on length of key
         # currX = index * ((getCanvasX(canvas) - padX) / len(data)) + padX
         # currY = (getCanvasY(canvas) - padY) / 2
@@ -196,29 +196,42 @@ class SkipList:
         return rows
     
     def drawSkipList(self, canvas: Canvas):
+        canvas.delete("all")
         allRows = self.getRows()
         maxLen = 0
-        longestRow = 0
-        numRows = len(allRows)
         for index, row in enumerate(allRows):
-            print("Row " + str(index) + ": " + str(row))    # DEBUG
             if(len(row) > maxLen):
                 maxLen = len(row)
-                longestRow = index
+        padX = 50
+        padY = 50
+        # create tuples of (key, x) to determine the x position on upper rows
+        bottomRow = []
+        for rowIndex, node in enumerate(allRows[0]):    # determine x values for the bottom row
+            currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX
+            bottomRow.append((node.key, currX)) # tuple of (key, x)
+
         for index, row in enumerate(reversed(allRows)):
-            for index, node in enumerate(row):
-                currX = getCanvasX(canvas) / 2  # DEBUG
-                currY = getCanvasY(canvas) / 2  # DEBUG
-                radius = 50
+            currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (index + 1)) + padY
+            for rowIndex, node in enumerate(row):
+                # currX = (((getCanvasX(canvas) - 2 * padX) / (len(row) + 1)) * (rowIndex + 1)) + padX  # old row-relative x formula
                 color = "yellow"
-                node.drawSkipNode(canvas, currX, currY, radius, color)
-        # DEBUG
-        # printStr = ""
-        # for index, row in enumerate(reversed(allRows)):
-        #     printStr = ""
-        #     for index, node in enumerate(row):
-        #         printStr += str(node) + " "
-        #     print(printStr)
+                found = False
+                for index, element in enumerate(bottomRow):
+                    if(element[0] == node.key):
+                        node.drawSkipNode(canvas, element[1], currY, color)
+                        found = True
+                        break
+                if(not found):
+                    currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX  # for now, currX is determined per row
+                    node.drawSkipNode(canvas, currX, currY, color)
+
+                # # draw arrows between each node
+                # nextX = (index + 1) * ((getCanvasX(canvas) - padX) / len(data)) + padX
+                # nextY = (getCanvasY(canvas) - padY) / 2
+                # arrowLength = (nextX - currX) * 0.5    # arrow length as a function of line length
+                # canvas.create_line(currX+radius, currY, nextX-radius, nextY, fill="black")
+                # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY+math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
+                # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY-math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
 
 # Starts all data structure animations on all canvases
 def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
