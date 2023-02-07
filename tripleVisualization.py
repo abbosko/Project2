@@ -258,6 +258,146 @@ class RBTree:
         self.NULL.left = None
         self.root = self.NULL
 
+    # Balancing tree after node is removed
+    def balance_remove(self, a):
+        while a != self.root and a.color == 0:
+            if a == a.parent.left:
+                s = a.parent.right
+                if s.color == 1:
+                    s.color = 0
+                    a.parent.color = 1
+                    self.left_rotate(a.parent)
+                    s = a.parent.right
+ 
+                if s.left.color == 0 and s.right.color == 0:
+                    s.color = 1
+                    a = a.parent
+                else:
+                    if s.right.color == 0:
+                        s.left.color = 0
+                        s.color = 1
+                        self.right_rotate(s)
+                        s = a.parent.right
+ 
+                    s.color = a.parent.color
+                    a.parent.color = 0
+                    s.right.color = 0
+                    self.left_rotate(a.parent)
+                    a = self.root
+            else:
+                s = a.parent.left
+                if s.color == 1:
+                    s.color = 0
+                    a.parent.color = 1
+                    self.right_rotate(a.parent)
+                    s = a.parent.left
+ 
+                if s.right.color == 0 and s.right.color == 0:
+                    s.color = 1
+                    a = a.parent
+                else:
+                    if s.left.color == 0:
+                        s.right.color = 0
+                        s.color = 1
+                        self.left_rotate(s)
+                        s = a.parent.left
+ 
+                    s.color = a.parent.color
+                    a.parent.color = 0
+                    s.left.color = 0
+                    self.right_rotate(a.parent)
+                    a = self.root
+        a.color = 0
+
+    # Balancing tree after node is inserted
+    def balance_insertion(self, k):
+        while k.parent.color == 1:                  #parent of k is red
+            if k.parent == k.parent.parent.right:
+                u = k.parent.parent.left
+                if u.color == 1:
+                    u.color = 0
+                    k.parent.color = 0
+                    k.parent.parent.color = 1
+                    k = k.parent.parent
+                else:
+                    if k == k.parent.left:
+                        k = k.parent
+                        self.right_rotate(k)
+                    k.parent.color = 0
+                    k.parent.parent.color = 1
+                    self.left_rotate(k.parent.parent)
+            else:
+                u = k.parent.parent.right
+ 
+                if u.color == 1:
+                    u.color = 0
+                    k.parent.color = 0
+                    k.parent.parent.color = 1
+                    k = k.parent.parent
+                else:
+                    if k == k.parent.right:
+                        k = k.parent
+                        self.left_rotate(k)
+                    k.parent.color = 0
+                    k.parent.parent.color = 1
+                    self.right_rotate(k.parent.parent)
+            if k == self.root:
+                break
+        self.root.color = 0
+
+    # Helps transplant the nodes
+    def __rb_transplant(self, u, v):
+        if u.parent == None:
+            self.root = v
+        elif u == u.parent.left:
+            u.parent.left = v
+        else:
+            u.parent.right = v
+        v.parent = u.parent
+
+    # Node deletion
+    def remove_node_helper(self, node, val):
+        c = self.NULL
+
+        while node != self.NULL: #find node that has particular value in it
+            if node.val == val:
+                c = node #store in c
+ 
+            if node.val <= val:
+                node = node.right
+            else:
+                node = node.left
+ 
+        if c == self.NULL: #val not found in the tree
+            print("Value not found\n")
+            return
+ 
+        b = c
+        b_original_color = b.color  #store color
+        if c.left == self.NULL:     #if left child is NULL
+            a = c.right             #right child of c to a
+            self.__rb_transplant(c, c.right) #transplant node is deleted
+        elif (c.right == self.NULL):     #else if right child of c is null
+            a = c.left              #left child of c to a
+            self.__rb_transplant(c, c.left)
+        else:
+            b = self.minimum(c.right)
+            b_original_color = b.color
+            a = b.right
+            if b.parent == c:
+                a.parent = b
+            else:
+                self.__rb_transplant(b, b.right)
+                b.right = c.right
+                b.right.parent = b
+ 
+            self.__rb_transplant(c, b)
+            b.left = c.left
+            b.left.parent = b
+            b.color = c.color
+        if b_original_color == 0:
+            self.balance_remove(a)
+
     # TODO: Need to add the rest of the RBTree code + drawRBTree method
 
 # Starts all data structure animations on all canvases
