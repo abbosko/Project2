@@ -233,6 +233,33 @@ class SkipList:
                 # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY+math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
                 # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY-math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
 
+# Red Black Tree Code
+
+class RBTreeNode:
+    def __init__(self, key=0):
+        self.key = key
+        self.parent = None  #parent node
+        self.left = None   #left node
+        self.right = None  #right node
+        self.color = 1     #1=red , 0 = black
+
+    def drawRBTreeNode(self, canvas: Canvas, x, y):
+        radius = 10 + len(str(self.key)) * 1.2
+        currX = x
+        currY = y
+        canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill='red')
+        canvas.create_text(currX, currY, text=str(self.key), fill="black")
+
+class RBTree:
+    def __init__(self):
+        self.NULL = RBTreeNode()
+        self.NULL.color = 0
+        self.NULL.right = None
+        self.NULL.left = None
+        self.root = self.NULL
+
+    # TODO: Need to add the rest of the RBTree code + drawRBTree method
+
 # Starts all data structure animations on all canvases
 def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # create Skip List
