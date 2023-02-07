@@ -62,7 +62,7 @@ class FibonacciHeap:
 
         #if only one child 
         if (parent.child == parent.child.right):
-            parent.child == None
+            parent.child = None
         
         #when found node cut it out by reset ptrs
         elif parent.child == node:
