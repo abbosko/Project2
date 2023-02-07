@@ -210,12 +210,16 @@ class SkipList:
             currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX
             bottomRow.append((node.key, currX)) # tuple of (key, x)
 
+        # matrix of tuples of (node.key, x, y)
+        nodeMatrix = [[0]*len(bottomRow) for i in range(len(allRows))]
+        # print(nodeMatrix)
+
         for index, row in enumerate(reversed(allRows)):
             currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (index + 1)) + padY
             for rowIndex, node in enumerate(row):
                 # currX = (((getCanvasX(canvas) - 2 * padX) / (len(row) + 1)) * (rowIndex + 1)) + padX  # old row-relative x formula
                 color = "yellow"
-                found = False
+                found = True
                 for index, element in enumerate(bottomRow):
                     if(element[0] == node.key):
                         node.drawSkipNode(canvas, element[1], currY, color)
