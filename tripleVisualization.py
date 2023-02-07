@@ -256,6 +256,8 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     skipList = SkipList()
     # redBlackTree = RedBlackTree()
     # fibHeap = FibHeap()
+    linkedList2 = LinkedList()
+    linkedList3 = LinkedList()
 
     for num in data:
         # dataStructure.insert(num)
@@ -325,6 +327,7 @@ elementsVar = IntVar(value=10)
 minimumVar = IntVar(value=1)
 maximumVar = IntVar(value=99)
 dataString = StringVar()    # used to update dataViewLabel
+removeVar = IntVar(value=1)
 
 # Global variables
 canvasWidth = 800
@@ -376,9 +379,12 @@ testButton.grid(row=0, column=0, padx=5, pady=5)
 # Generate data when button pressed
 randomButton = Button(buttonWindow, text="Randomize Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg="blue", fg="white")
 randomButton.grid(row=0, column=1, padx=5, pady=5)
+# Remove selected value
+removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="purple", fg="white")
+removeButton.grid(row=0, column=2, padx=5, pady=5)
 # Reset button
 sortButton = Button(buttonWindow, text="Reset All", command=clearCanvas, bg="red", fg="white")
-sortButton.grid(row=0, column=2, padx=5, pady=5)
+sortButton.grid(row=0, column=3, padx=5, pady=5)
 # Options Window
 optionWindow = Frame(buttonOptionWindow, width=canvasWidth, height=100, bg="white")
 optionWindow.grid(row=3, column=0, padx=5, pady=5)
@@ -406,5 +412,11 @@ maximumLabel.grid(row=0, column=5, padx=5, pady=5)
 # Maximum select
 maximumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=maximumVar)
 maximumSelect.grid(row=1, column=5, padx=5, pady=5)
+# Remove label
+removeLabel = Label(optionWindow, text="Remove", bg="white", fg="black")
+removeLabel.grid(row=0, column=6, padx=5, pady=5)
+# Remove select
+removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=100, textvariable=removeVar)
+removeSelect.grid(row=1, column=6, padx=5, pady=5)
 
 root.mainloop()
