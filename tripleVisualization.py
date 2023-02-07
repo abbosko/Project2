@@ -108,6 +108,15 @@ class SkipNode:
     def __str__(self) -> str:
         return "[" + str(self.key) + "]"
 
+    def drawSkipNode(self, canvas: Canvas, x, y, radius, color):
+        radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on length of key
+        # currX = index * ((getCanvasX(canvas) - padX) / len(data)) + padX
+        # currY = (getCanvasY(canvas) - padY) / 2
+        currX = x
+        currY = y
+        canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
+        canvas.create_text(currX, currY, text=str(self.key), fill="black")
+
 # skip list class
 class SkipList:
     def __init__(self):
@@ -196,13 +205,20 @@ class SkipList:
             if(len(row) > maxLen):
                 maxLen = len(row)
                 longestRow = index
-        # DEBUG
-        printStr = ""
         for index, row in enumerate(reversed(allRows)):
-            printStr = ""
             for index, node in enumerate(row):
-                printStr += str(node) + " "
-            print(printStr)
+                currX = getCanvasX(canvas) / 2  # DEBUG
+                currY = getCanvasY(canvas) / 2  # DEBUG
+                radius = 50
+                color = "yellow"
+                node.drawSkipNode(canvas, currX, currY, radius, color)
+        # DEBUG
+        # printStr = ""
+        # for index, row in enumerate(reversed(allRows)):
+        #     printStr = ""
+        #     for index, node in enumerate(row):
+        #         printStr += str(node) + " "
+        #     print(printStr)
 
 # Starts all data structure animations on all canvases
 def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
