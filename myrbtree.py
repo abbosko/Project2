@@ -19,7 +19,6 @@ class RedBlackTree():
         self.NULL.left = None
         self.root = self.NULL
  
-  
  # Preorder
     def pre_order_helper(self, node):
         if node != self.NULL:
