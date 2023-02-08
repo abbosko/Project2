@@ -15,9 +15,6 @@ import sys
 class LinkedList:
     def __init__(self):
         self.next = None
-    
-    def changeNext(self, next):
-        self.next = next
 
     def insert(self, value):
         currNode = self
@@ -30,15 +27,8 @@ class LinkedList:
             newNode = Node(value, currNode.next)
             currNode.next = newNode
 
+    # non-functional, dummy
     def remove(self, value) -> bool:
-        currNode = self
-        while(currNode.next != None and currNode.next.value != value):
-            currNode = currNode.next
-        if(currNode.next == None):
-            return False
-        if(currNode.next.value == value):
-            currNode.next = currNode.next.next
-            return True
         return False
 
     def __len__(self):
@@ -58,12 +48,12 @@ class LinkedList:
         canvas.delete("all")
         if(self.next == None or len(self) < 1):   # Do not draw anything if the LinkedList is empty
             return
-        data = self.asList()
+        thisData = self.asList()
         currNode = self.next
         padX = 50
         padY = 50
         for index, node in enumerate(currNode.asList()):   # While there are nodes remaining
-            currNode.drawNode(index, data, canvas, padX, padY, "yellow")
+            currNode.drawNode(index, thisData, canvas, padX, padY, "yellow")
 
 class Node(LinkedList):
     def __init__(self, value, next=None):
