@@ -6,5 +6,5 @@ Comparing Red-Black Tree, Fib Heap, and SkipList algorithms
 
 ### Assignments:
 * Skiplist: Scott, Sam
-* Fib Heap: Abby, Audrey
+* Fib Heap: Abbie, Audrey
 * RBT: Summer, Kevin
