@@ -29,7 +29,8 @@ class FibonacciHeap:
         node.left.right = node.right
         node.right.left = node.left
 
-    def addToTree(self, bigger, smaller):   # when consolidating, this adds the smaller tree to the bigger tree
+    # when consolidating, this adds the smaller tree to the bigger tree
+    def addToTree(self, bigger, smaller):
         self.removeFromRootList(bigger)
         if(smaller.right == smaller):
             self.min = smaller
@@ -57,10 +58,10 @@ class FibonacciHeap:
             parent.child.right = node
     
     def removeFromChildList(self, parent, node):
-        #if only one child 
+        # if only one child 
         if(parent.child == parent.child.right):
             parent.child = None
-        #when found node cut it out by reset ptrs
+        # when found node cut it out by reset ptrs
         elif parent.child == node:
             parent.child = node.right
             node.right.parent = parent
@@ -73,9 +74,9 @@ class FibonacciHeap:
         newNode = FibNode(key)
         newNode.left = newNode
         newNode.right = newNode
-        #add it to root list
+        # add it to root list
         self.addToRootList(newNode)
-        #set as new min if smallest or no min
+        # set as new min if smallest or no min
         if self.min is None or newNode.key < self.min.key:
                 self.min = newNode
         self.nodeCount += 1
@@ -100,15 +101,13 @@ class FibonacciHeap:
             print("Heap empty, can't extract")
         else:
             oldMin = self.min
-            if(oldMin.child != None):
-                # if the min has children
-                #for every child of old minimum add to root list
+            if(oldMin.child != None):   # if the min has children
+                # for every child of old minimum add to root list
                 children = [x for x in self.iterate(oldMin.child)]
                 for i in children:
                     self.addToRootList(i)
                     if(i.key < self.min.key):
                         self.min = i
-                    # self.removeFromChildList(children[i])
                     i.parent = None
             self.removeFromRootList(oldMin)
             self.min = oldMin.right
@@ -120,8 +119,7 @@ class FibonacciHeap:
             self.nodeCount -= 1
 
     def consolidate(self):
-        aux = [None] * int(math.log(self.nodeCount) * 2)    # I found this online idk
-        # aux = ((math.frexp(self.nodeCount)[1] - 1) + 1) * [None]
+        aux = [None] * int(math.log(self.nodeCount) * 2)
         #get root list
         array = [node for node in self.iterate(self.min)]
         while array != []:
@@ -129,9 +127,9 @@ class FibonacciHeap:
             degree = first.degree
             array.remove(first)
             while aux[degree] is not None:
-                #if already have tree of that degree
+                # if already have tree of that degree
                 second = aux[degree]
-                #grab that value 
+                # grab that value 
                 if first.key > second.key: # this is to ensure that the second is larger than the first
                     temp = first
                     first = second
@@ -141,9 +139,6 @@ class FibonacciHeap:
                 degree += 1    
             aux[degree] = first
         self.min = None
-        # for i in array:
-        #    self.addToRootList(i)
-        # self.min = None
         # Find min node
         for i in aux:
             if i is not None:
@@ -151,7 +146,7 @@ class FibonacciHeap:
                     self.min = i
     
     def cut(self, node, parent):
-        #no longer a child so remove from child list 
+        # no longer a child so remove from child list 
         self.removeFromChildList(parent, node)
         parent.degree -= 1
         self.addToRootList(node)
@@ -167,7 +162,7 @@ class FibonacciHeap:
                 self.cut(node, ptr)
                 self.cascadeCut(ptr)
 
-# decrease key used for delete
+    # decrease key used for delete
     def decrease_key(self, node, val):
         # not decreasing
         if val > node.key:
@@ -193,24 +188,24 @@ class FibonacciHeap:
         else:
             if(ptr.child != None):
                 self.find(start.child, val)
-            if (ptr.right.color != 'Y'):
+            if(ptr.right.color != 'Y'):
                 self.find(start.right, val)
         ptr.color = 'N'
 
     def delete(self, val):
-        if( self.min == None):
+        if(self.min == None):
             print("Error: Heap Empty")
-        elif (self.min.key == val):
+        elif(self.min.key == val):
             self.extract_min()
         else:
             self.finder = None
             self.find(self.min, val)
             node = self.finder
-            if (node == None):
+            if(node == None):
                 print("not found")
             else:
                 # Decreasing the value of the node to new min
-                self.decrease_key(node, self.min.key - 1 )
+                self.decrease_key(node, self.min.key - 1)
                 # Calling Extract_min function to delete node
                 self.extract_min()
  
