@@ -22,28 +22,28 @@ class RedBlackTree():
   
  # Preorder
     def pre_order_helper(self, node):
-        if node != NULL:
+        if node != self.NULL:
             sys.stdout.write(node.val + " ")
             self.pre_order_helper(node.left)
             self.pre_order_helper(node.right)
 
     # Inorder
     def in_order_helper(self, node):
-        if node != NULL:
+        if node != self.NULL:
             self.in_order_helper(node.left)
             sys.stdout.write(node.val + " ")
             self.in_order_helper(node.right)
 
     # Postorder
     def post_order_helper(self, node):
-        if node != NULL:
+        if node != self.NULL:
             self.post_order_helper(node.left)
             self.post_order_helper(node.right)
             sys.stdout.write(node.val + " ")
 
     # Search the tree
     def search_tree(self, node, key):
-        if node == NULL or key == node.val:
+        if node == self.NULL or key == node.val:
             return node
         if key < node.val:
             return self.search_tree(node.left, key)
