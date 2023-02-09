@@ -335,7 +335,8 @@ class FibonacciHeap:
 
     def extract_min(self):
         if(self.min == None):
-            print("Heap empty, can't extract")
+            # print("Heap empty, can't extract")
+            return
         else:
             oldMin = self.min
             if(oldMin.child != None):   # if the min has children
@@ -467,7 +468,7 @@ class FibonacciHeap:
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     # global redBlackTree
-    # global fibHeap
+    global fibHeap
     
     # reset data structures
     skipList = SkipList()
@@ -481,11 +482,11 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
         # root.update()
         skipList.insert(num)
         skipList.drawSkipList(canvas1)
-        root.update()
+        # root.update()
 
         fibHeap.insert(num)
         fibHeap.drawFibHeap(canvas2)
-        root.update()
+        # root.update()
 
         linkedList3.insert(num)
         linkedList3.drawLinkedList(canvas3)
@@ -537,7 +538,7 @@ def generateData(elements, minInt, maxInt):
     dataString.set(data)
 
 root = Tk()
-root.title("Data Structures Visualization Test")
+root.title("Data Structures Visualization")
 root.maxsize(1920, 1080)
 root.config(bg = "white")
 
