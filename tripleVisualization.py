@@ -163,26 +163,41 @@ class SkipList:
         global padX
         global padY
         path = self.getPath(key)
-        print(path) # DEBUG
         allRows = self.getRows()
         # inner function to determine the X value of the given node
-        def findX(row, index):
-            return (((getCanvasX(canvas) - 2 * padX) / (len(row) + 2)) * (index + 2)) + padX
+        def findX(node):
+            index = allRows[0].index(node)
+            return (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (index + 2)) + padX
         def findY(allRows, rowIndex):
             return (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (rowIndex + 1)) + padY
         
-        for step in reversed(path):
+        # TODO highlight head node if None is the first in the path
+        # TODO highlight intermediate nodes (go left from highlighted ones)
+        for stepIndex, step in enumerate(reversed(path)):
             print("Step " + str(step))  # DEBUG
-            for colIndex, row in enumerate(allRows):
-                for index, element in enumerate(row):
-                    if(element.key == step.key):
-                        currX = findX(row, index)
-                        currY = findY(allRows, colIndex)
-                        radius = calculateRadius(element.key)
+            for index, element in enumerate(allRows[stepIndex]):
+                if(element.key == step.key):
+                    currX = findX(element)
+                    currY = findY(allRows, stepIndex)
+                    radius = calculateRadius(element.key)
+                    canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
+                    canvas.create_text(currX, currY, text=str(element.key), fill="black")
+                    # go backwards to find intermediate nodes to highlight
+                    tempElement = element
+                    i = 1
+                    while(tempElement.key == None):
+                        i += 1
+                        tempElement = allRows[stepIndex-i]
+                    if(tempElement.key != None):
+                        # highlight reverse
+                        print("highlight reverse on " + str(tempElement.key))   # DEBUG
                         canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
+                        canvas.create_text(currX, currY, text=str(tempElement.key), fill="black")
+                    break
             # WARNING: may cause unintended behavior, like delays
             root.after(delaySelect.get())   # delay after every node is highlighted
             root.update()
+        # TODO call find() for the last highlight
 
     # inserts a new node with the given key
     def insert(self, key):
@@ -571,10 +586,10 @@ def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # dataStructure.animateFind(num)
     # root.update()
 
-    skipList.animateFind(num, canvas2)
+    skipList.animateFind(num, canvas1)
     root.update()
 
-    # fibHeap.animateFind(num)
+    # fibHeap.animateFind(num, canvas2)
     # root.update()
     
     # RBT
@@ -670,7 +685,7 @@ randomButton.grid(row=0, column=1, padx=5, pady=5)
 removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="purple", fg="white")
 removeButton.grid(row=0, column=2, padx=5, pady=5)
 # Find selected value
-findButton = Button(buttonWindow, text="Find Value", command=lambda : findInAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="magenta", fg="white")
+findButton = Button(buttonWindow, text="Find Value", command=lambda : findInAll(int(findSelect.get()), canvas1, canvas2, canvas3), bg="magenta", fg="white")
 findButton.grid(row=0, column=3, padx=5, pady=5)
 # Reset button
 sortButton = Button(buttonWindow, text="Clear Canvas", command=clearCanvas, bg="red", fg="white")
