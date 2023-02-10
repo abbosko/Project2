@@ -135,6 +135,20 @@ class SkipList:
         # return the path taken down the list
         return path
 
+    # gets an array of the last node on each level whose key is less than the given key
+    # helper function
+    def getPath(self, key):
+        # initializes array to hold the nodes where we "shift down" a level
+        path = [None] * len(self.head.next)
+        # searches down the list for the key, but stops when it hits the bottom
+        ptr = self.head
+        for i in range(len(self.head.next)-1, -1, -1):
+            while ptr.next[i] != None and ptr.next[i].key < key:
+                ptr = ptr.next[i]
+            path[i] = ptr
+        # return the path taken down the list
+        return path
+
     # returns an element with the given key
     def find(self, key, path=None):
         # finds path if none is given
@@ -147,6 +161,14 @@ class SkipList:
                 return candidate
         # returns none if element not found
         return None 
+
+    # draws differently colored nodes in the path of the find operation
+    def animateFind(self, key):
+        path = self.getPath(key)
+        allRows = self.getRows()
+        def findX(row, index):
+            pass
+            
 
     # inserts a new node with the given key
     def insert(self, key):
@@ -207,23 +229,28 @@ class SkipList:
         bottomY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * len(allRows)) + padY
         # create tuples of (key, x) to determine the x position on upper rows
         bottomRow = []
+        leftX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (1)) + padX
+        canvas.create_line(leftX, bottomY, leftX, topY, fill="black") # draw vertical lines between nodes
         for rowIndex, node in enumerate(allRows[0]):    # determine x values for the bottom row
-            currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX
+            currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (rowIndex + 2)) + padX # currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX
             bottomRow.append((node.key, currX)) # tuple of (key, x)
             canvas.create_line(currX, bottomY, currX, topY, fill="black") # draw vertical lines between nodes
 
-        leftX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1))) + padX
-        rightX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (len(allRows[0]))) + padX
+        leftX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2))) + padX
+        rightX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (len(allRows[0]) + 1)) + padX
         for colIndex, col in enumerate(allRows):
             currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (colIndex + 1)) + padY
             canvas.create_line(leftX, currY, rightX, currY, fill="black") # draw horizontal lines between nodes
+            # draw head nodes
+            radius = 10 + (len(str("H")) + 1) * 1.2   # determine radius of node based on length of the string "H"
+            canvas.create_oval(leftX-radius, currY-radius, leftX+radius, currY+radius, fill="orange")
+            canvas.create_text(leftX, currY, text="H", fill="black")
 
         # create blank 2D list of tuples of (SkipNode, x, y)
         nodeMatrix = [[None]*len(bottomRow) for i in range(len(allRows))]
         for index, row in enumerate(reversed(allRows)):
             currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (index + 1)) + padY
             for rowIndex, node in enumerate(row):
-                # currX = (((getCanvasX(canvas) - 2 * padX) / (len(row) + 1)) * (rowIndex + 1)) + padX  # old row-relative x formula
                 color = "yellow"
                 found = True
                 for bottomIndex, element in enumerate(bottomRow):
@@ -232,7 +259,7 @@ class SkipList:
                         nodeMatrix[index][bottomIndex] = (node, currX, currY)
                         found = True
                 if(not found):  # found is a bool, so duplicates do not yet appear
-                    currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX  # for now, currX is determined per row
+                    currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (rowIndex + 2)) + padX  # for now, currX is determined per row
                     node.drawSkipNode(canvas, currX, currY, color)
                     nodeMatrix[rowIndex][bottomIndex] = (node, currX, currY)
 
@@ -516,7 +543,25 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # root.update()
 
     root.after(delaySelect.get())   # delay after every data structure is updated
-    return
+
+# Animates the search for a specified data point in each of the three data structures
+def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
+    global skipList
+    global fibHeap
+    # global redBlackTree
+
+    # dataStructure.animateFind(num)
+    # root.update()
+
+    skipList.animateFind(num)
+    root.update()
+
+    # fibHeap.animateFind(num)
+    # root.update()
+    
+    # RBT
+
+    root.after(delaySelect.get())   # delay after every data structure is updated
 
 def getCanvasX(canvas: Canvas):
     return canvas.winfo_width()
@@ -550,6 +595,7 @@ minimumVar = IntVar(value=1)
 maximumVar = IntVar(value=99)
 dataString = StringVar()    # used to update dataViewLabel
 removeVar = IntVar(value=1)
+findVar = IntVar(value=1)
 
 # Global variables
 canvasWidth = 800
@@ -603,6 +649,9 @@ randomButton.grid(row=0, column=1, padx=5, pady=5)
 # Remove selected value
 removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="purple", fg="white")
 removeButton.grid(row=0, column=2, padx=5, pady=5)
+# Find selected value
+findButton = Button(buttonWindow, text="Find Value", command=lambda : findInAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="magenta", fg="white")
+findButton.grid(row=0, column=2, padx=5, pady=5)
 # Reset button
 sortButton = Button(buttonWindow, text="Clear Canvas", command=clearCanvas, bg="red", fg="white")
 sortButton.grid(row=0, column=3, padx=5, pady=5)
@@ -637,7 +686,13 @@ maximumSelect.grid(row=1, column=5, padx=5, pady=5)
 removeLabel = Label(optionWindow, text="Remove", bg="white", fg="black")
 removeLabel.grid(row=0, column=6, padx=5, pady=5)
 # Remove select
-removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=100, textvariable=removeVar)
+removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=removeVar)
 removeSelect.grid(row=1, column=6, padx=5, pady=5)
+# Find label
+findLabel = Label(optionWindow, text="Find", bg="white", fg="black")
+findLabel.grid(row=0, column=7, padx=5, pady=5)
+# Remove select
+findSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=findVar)
+findSelect.grid(row=1, column=7, padx=5, pady=5)
 
 root.mainloop()
