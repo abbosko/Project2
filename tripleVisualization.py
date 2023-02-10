@@ -45,13 +45,13 @@ class LinkedList:
         return returnList
 
     def drawLinkedList(self, canvas: Canvas):
+        global padX
+        global padY
         canvas.delete("all")
         if(self.next == None or len(self) < 1):   # Do not draw anything if the LinkedList is empty
             return
         thisData = self.asList()
         currNode = self.next
-        padX = 50
-        padY = 50
         for index, node in enumerate(currNode.asList()):   # While there are nodes remaining
             currNode.drawNode(index, thisData, canvas, padX, padY, "yellow")
 
@@ -66,7 +66,7 @@ class Node(LinkedList):
         self.value = value
 
     def drawNode(self, index, data, canvas: Canvas, padX, padY, color):
-        radius = 10 + len(str(self.value)) * 1.2   # determine radius of node based on number of digits
+        radius = calculateRadius(self.value)
         currX = index * ((getCanvasX(canvas) - padX) / len(data)) + padX
         currY = (getCanvasY(canvas) - padY) / 2
         canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
@@ -108,13 +108,9 @@ class SkipNode:
         return self.key == __o.key
 
     def drawSkipNode(self, canvas: Canvas, x, y, color):
-        radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on length of key
-        # currX = index * ((getCanvasX(canvas) - padX) / len(data)) + padX
-        # currY = (getCanvasY(canvas) - padY) / 2
-        currX = x
-        currY = y
-        canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
-        canvas.create_text(currX, currY, text=str(self.key), fill="black")
+        radius = calculateRadius(self.key)
+        canvas.create_oval(x-radius, y-radius, x+radius, y+radius, fill=color)
+        canvas.create_text(x, y, text=str(self.key), fill="black")
 
 # skip list class
 class SkipList:
@@ -163,12 +159,30 @@ class SkipList:
         return None 
 
     # draws differently colored nodes in the path of the find operation
-    def animateFind(self, key):
+    def animateFind(self, key, canvas: Canvas):
+        global padX
+        global padY
         path = self.getPath(key)
+        print(path) # DEBUG
         allRows = self.getRows()
+        # inner function to determine the X value of the given node
         def findX(row, index):
-            pass
-            
+            return (((getCanvasX(canvas) - 2 * padX) / (len(row) + 2)) * (index + 2)) + padX
+        def findY(allRows, rowIndex):
+            return (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (rowIndex + 1)) + padY
+        
+        for step in reversed(path):
+            print("Step " + str(step))  # DEBUG
+            for colIndex, row in enumerate(allRows):
+                for index, element in enumerate(row):
+                    if(element.key == step.key):
+                        currX = findX(row, index)
+                        currY = findY(allRows, colIndex)
+                        radius = calculateRadius(element.key)
+                        canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
+            # WARNING: may cause unintended behavior, like delays
+            root.after(delaySelect.get())   # delay after every node is highlighted
+            root.update()
 
     # inserts a new node with the given key
     def insert(self, key):
@@ -218,13 +232,13 @@ class SkipList:
     
     def drawSkipList(self, canvas: Canvas):
         canvas.delete("all")
+        global padX
+        global padY
         allRows = self.getRows()
         maxLen = 0
         for index, row in enumerate(allRows):
             if(len(row) > maxLen):
                 maxLen = len(row)
-        padX = 50
-        padY = 50
         topY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1))) + padY
         bottomY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * len(allRows)) + padY
         # create tuples of (key, x) to determine the x position on upper rows
@@ -491,6 +505,10 @@ class FibonacciHeap:
     def drawFibHeap(self, canvas: Canvas):
         pass
 
+# Calculates a radius such that the text within will fit into the circle
+def calculateRadius(key):
+    return 10 + (len(str(key))) * 1.2   # determine radius of node based on length of the string
+
 # Animates the insertion of every data point into each of the three data structures
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
@@ -553,7 +571,7 @@ def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # dataStructure.animateFind(num)
     # root.update()
 
-    skipList.animateFind(num)
+    skipList.animateFind(num, canvas2)
     root.update()
 
     # fibHeap.animateFind(num)
@@ -600,6 +618,8 @@ findVar = IntVar(value=1)
 # Global variables
 canvasWidth = 800
 canvasHeight = 400
+padX = 50
+padY = 50
 # Create all data structures
 skipList = SkipList()  # create Skip List
 # redBlackTree = RedBlackTree() # create RBT
@@ -651,10 +671,10 @@ removeButton = Button(buttonWindow, text="Remove Value", command=lambda : remove
 removeButton.grid(row=0, column=2, padx=5, pady=5)
 # Find selected value
 findButton = Button(buttonWindow, text="Find Value", command=lambda : findInAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="magenta", fg="white")
-findButton.grid(row=0, column=2, padx=5, pady=5)
+findButton.grid(row=0, column=3, padx=5, pady=5)
 # Reset button
 sortButton = Button(buttonWindow, text="Clear Canvas", command=clearCanvas, bg="red", fg="white")
-sortButton.grid(row=0, column=3, padx=5, pady=5)
+sortButton.grid(row=0, column=4, padx=5, pady=5)
 # Options Window
 optionWindow = Frame(buttonOptionWindow, width=canvasWidth, height=100, bg="white")
 optionWindow.grid(row=3, column=0, padx=5, pady=5)
