@@ -162,7 +162,7 @@ class SkipList:
     def animateFind(self, key, canvas: Canvas):
         global padX
         global padY
-        path = self.getPath(key)
+        path = self.getFullPath(key)  # TODO update when written
         allRows = self.getRows()
         # inner function to determine the X value of the given node
         def findX(node):
@@ -170,45 +170,13 @@ class SkipList:
             return (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (index + 2)) + padX
         def findY(allRows, rowIndex):
             return (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (rowIndex + 1)) + padY
-        
-        
-        # TODO highlight head node if None is the first in the path
-        # TODO highlight intermediate nodes (go left from highlighted ones)
-        for stepIndex, step in enumerate(reversed(path)):
-            print("Step " + str(step))  # DEBUG
-            for index, element in enumerate(allRows[stepIndex]):
-                if(element.key == step.key):
-                    currX = findX(element)
-                    currY = findY(allRows, stepIndex)
-                    radius = calculateRadius(element.key)
-                    canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
-                    canvas.create_text(currX, currY, text=str(element.key), fill="black")
-                    # go backwards to find intermediate nodes to highlight
-                    # tempElement = element
-                    # i = 0
-                    # while(tempElement.key == None):
-                    #     i += 1
-                    #     tempElement = allRows[index-i][stepIndex]
-                    # if(tempElement.key != None):
-                    #     # highlight reverse
-                    #     print("highlight reverse on " + str(tempElement.key))   # DEBUG
-                    #     canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
-                    #     canvas.create_text(currX, currY, text=str(tempElement.key), fill="black")
-                    break
-            # WARNING: may cause unintended behavior, like delays
-            root.after(delaySelect.get())   # delay after every node is highlighted
-            root.update()
-        # TODO call find() for the last highlight
-        finalNode = self.find(key)
-        for index, row in enumerate(reversed(allRows)):
-            for rowIndex, node in enumerate(row):
-                if(node.next == finalNode.next and node.key == finalNode.key):
-                    print("AHA")    # DEBUG
-                    currX = findX(node)
-                    currY = findY(allRows, index)
-                    radius = calculateRadius(node.key)
-                    canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
-                    canvas.create_text(currX, currY, text=str(element.key), fill="black")
+        # TODO use the new function self.getFullPath(key)
+        for element in path:
+            currX = findX(allRows[element[0]][element[1]])
+            currY = findY(allRows, element[1])  # may be [0]
+            radius = calculateRadius(element.key)
+            canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
+            canvas.create_text(currX, currY, text=str(element.key), fill="black")
 
     # inserts a new node with the given key
     def insert(self, key):
