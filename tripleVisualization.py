@@ -318,6 +318,14 @@ class FibNode:
         self.parent = self.left = self.right = self.child = None
         self.color = 'N'     # for find
         self.mark = False    # flag for find 
+        self.k = 'N'
+    def drawFibNode(self, canvas: Canvas, X, Y, color):
+        radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on number of digits
+        # currX = index * ((canvas.winfo_width() - padX) / len(rootList)) + padX
+        # currY = (canvas.winfo_height()- padY) / 2
+        canvas.create_oval(X-radius, Y-radius, X+radius, Y+radius, fill=color)
+        canvas.create_text(X, Y, text=str(self.key), fill="black")
+        
 
 class FibonacciHeap:
     def __init__(self):
@@ -535,8 +543,40 @@ class FibonacciHeap:
             print()
             print("Node count", self.nodeCount)
     
-    def drawFibHeap(self, canvas: Canvas):
-        pass
+    def drawFibHeap(self, canvas): 
+        # self.populateRootList()
+        # canvas.delete("all")
+        # if(self.rootList == None or len(self.rootList) < 1):   # Do not draw anything if the LinkedList is empty
+        node = self.min
+        node.drawFibNode(canvas, 50, 50,  'yellow')
+        if(node.child != None):
+            self.drawFib(node.child, canvas, 70,70, node)
+        elif (node.right):
+            self.drawFib(node.right, canvas, 70,70, node)
+        else: 
+            return
+
+    def drawFib(self, node, canvas,  x, y, begin):
+
+        ptr = node
+        ptr.k = 'Y'
+        color = 'yellow'
+
+        if(ptr == begin):
+            ptr.k = 'N'
+            return 
+
+        else:
+            if( ptr == self.min): color = 'cyan'
+            ptr.drawFibNode(canvas, x, y,  color)
+            if(ptr.child != None):
+                y+=20
+                self.drawFib(node.child,canvas, x, y, begin)
+            if (ptr.right.k != 'Y'):
+                x+=20
+                self.drawFib(node.right, canvas, x, y,  begin);
+        ptr.k = 'N'
+       
 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
@@ -545,29 +585,33 @@ def calculateRadius(key):
 # Animates the insertion of every data point into each of the three data structures
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global fibHeap
+    global fibHeap
     # global rbt
     
     # reset data structures
     skipList = SkipList()
+    fibHeap = FibonacciHeap()
 
     for index, num in enumerate(data):
         if(index != 0):
             skipList.animateFind(num, canvas1, True)    # draw with delays
             skipList.insert(num)
+            fibHeap.insert(num)
             skipList.animateFind(num, canvas1, False)   # redraw with no delays
         else:
             skipList.insert(num)
+            fibHeap.insert(num)
         root.after(delaySelect.get())   # delay after every data structure is updated
         root.update()
     skipList.drawSkipList(canvas1)
+    fibHeap.drawFibHeap(canvas2)
     # fibHeap
     # rbt
 
 # Animates the insertion of a specified data point into each of the three data structures
 def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global fibHeap
+    global fibHeap
     # global rbt
 
     # do not insert duplicates
@@ -584,6 +628,8 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 
     # fibHeap
 
+    fibHeap.insert(num)
+    fibHeap.drawFibHeap(canvas2)
     # rbt
 
     root.after(delaySelect.get())   # delay after every data structure is updated
@@ -591,7 +637,7 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 # Animates the removal of a specified data point from each of the three data structures
 def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global fibHeap
+    global fibHeap
     # global rbt
 
     # do not insert duplicates
@@ -599,9 +645,12 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
         return
     # check in fib heap
     # check in rbt
-
+ 
     skipList.animateFind(num, canvas1, True)    # draw with delays
     skipList.insert(num)
+    fibHeap.delete(num)
+    fibHeap.drawFibHeap(canvas2)
+    root.update()
     skipList.animateFind(num, canvas1, False)   # redraw with no delays
     root.after(delaySelect.get())
     root.update()
