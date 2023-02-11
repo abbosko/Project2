@@ -1,6 +1,8 @@
 import sys
 from tkinter import *
 
+listOfLevels = []
+
 #initialize/defining node
 class RBNode():
     def __init__(self, key):
@@ -18,7 +20,6 @@ class RedBlackTree():
         self.NULL.right = None
         self.NULL.left = None
         self.root = self.NULL
- 
   
  # Preorder
     def preorderHelper(self, node):
@@ -325,25 +326,48 @@ class RedBlackTree():
  
     def printHelper(self):
         self.printTreeHelper(self.root, "", True)
- 
- 
-#if __name__ == "__main__":
-#    bst = RedBlackTree()
-#    total = input("How many numbers?")
-#    total = int(total)
-#    my_input = []
-#    a = 0
-#    while a < total:
-#        key = input("Enter keys\n")
-#        my_input.append(key)
-#        bst.insert(my_input[a])
-#        a = a + 1
-#    #bst.insert(70)
-# 
-#    bst.print_helper()
-#    print("\nAfter deleting an element")
-#    bst.rmv_node(my_input[2])
-#    bst.print_helper()
+
+    def getLevels(self):
+        # Initialize list to return
+        listOfLevels = []
+
+        def getLevelsHelper(node, l):
+            # If node's value is 0 (at leaf), return
+            if node.key == 0:
+                return
+            # If first time entering level, initalize and append the level's list to main list
+            if l >= len(listOfLevels):
+                list = []
+                listOfLevels.append(list)
+            # Append node to the level's list
+            listOfLevels[l].append(node)
+            getLevelsHelper(node.left, l+1)
+            getLevelsHelper(node.right, l+1)
+
+        getLevelsHelper(self.root, 0)
+
+        return listOfLevels
+
+if __name__ == "__main__":
+    bst = RedBlackTree()
+    total = input("How many numbers?")
+    total = int(total)
+    my_input = []
+    a = 0
+    while a < total:
+        key = input("Enter keys\n")
+        my_input.append(key)
+        bst.insert(my_input[a])
+        a = a + 1
+
+    #bst.insert(70)
+    # bst.printHelper()
+    # print("\nAfter deleting an element")
+    # bst.rmvNode(my_input[2])
+    # bst.printHelper()
+
+    # Printing list
+    print(bst.getLevels())
 
     #add remove, #add find
     #change my val to key
