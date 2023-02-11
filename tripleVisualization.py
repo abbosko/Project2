@@ -159,7 +159,7 @@ class SkipList:
         return None 
 
     # draws differently colored nodes in the path of the find operation
-    def animateFind(self, key, canvas: Canvas, delay=True):
+    def animateFind(self, key, canvas: Canvas, color="blue", delay=True):
         canvas.delete("all")
         self.drawSkipList(canvas)
         global padX
@@ -178,16 +178,16 @@ class SkipList:
                 leftX = ((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) + padX
                 currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (len(allRows) - element[0])) + padY
                 radius = 10 + (len(str("H")) + 1) * 1.2   # determine radius of node based on length of the string "H"
-                canvas.create_oval(leftX-radius, currY-radius, leftX+radius, currY+radius, fill="blue")
-                canvas.create_text(leftX, currY, text="H", fill="black")
+                canvas.create_oval(leftX-radius, currY-radius, leftX+radius, currY+radius, fill=color)
+                canvas.create_text(leftX, currY, text="H", fill="white")
             else:                   # not head node
                 if((len(allRows) - element[0] - 1) < 0):
                     currY = findY(allRows, len(allRows) - element[0])
                 else:
                     currY = findY(allRows, len(allRows) - element[0] - 1)
                 radius = calculateRadius(allRows[element[0]][element[1]].key)
-                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
-                canvas.create_text(currX, currY, text=str(allRows[element[0]][element[1]].key), fill="black")
+                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
+                canvas.create_text(currX, currY, text=str(allRows[element[0]][element[1]].key), fill="white")
             if(delay):  # delay between highlights
                 root.after(delaySelect.get())
                 root.update()
@@ -806,9 +806,9 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 
     for index, num in enumerate(data):
         if(index != 0):
-            skipList.animateFind(num, canvas1, True)    # draw with delays
+            skipList.animateFind(num, canvas1, insertColor, True)    # draw with delays
             skipList.insert(num)
-            skipList.animateFind(num, canvas1, False)   # redraw with no delays
+            skipList.animateFind(num, canvas1, insertColor, False)   # redraw with no delays
         else:
             skipList.insert(num)
         root.after(delaySelect.get())   # delay after every data structure is updated
@@ -829,9 +829,9 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # check in fib heap
     # check in rbt
 
-    skipList.animateFind(num, canvas1, True)    # draw with delays
+    skipList.animateFind(num, canvas1, insertColor, True)    # draw with delays
     skipList.insert(num)
-    skipList.animateFind(num, canvas1, False)   # redraw with no delays
+    skipList.animateFind(num, canvas1, insertColor, False)   # redraw with no delays
     root.after(delaySelect.get())
     root.update()
 
@@ -847,28 +847,22 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # global fibHeap
     # global rbt
 
-    skipList.animateFind(num, canvas1, True)    # draw with delays
+    skipList.animateFind(num, canvas1, removeColor, True)    # draw with delays
     skipList.remove(num)
     root.after(delaySelect.get())
     root.update()
-    skipList.drawSkipList(canvas1)
+    skipList.animateFind(num, canvas1, removeColor, False)    # draw with delays
 
     root.after(delaySelect.get())   # delay after every data structure is updated
 
 # Animates the search for a specified data point in each of the three data structures
 def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    global fibHeap
+    # global fibHeap
     # global redBlackTree
 
-    # dataStructure.animateFind(num)
-    # root.update()
-
-    skipList.animateFind(num, canvas1)
+    skipList.animateFind(num, canvas1, findColor, True)
     root.update()
-
-    # fibHeap.animateFind(num, canvas2)
-    # root.update()
     
     # RBT
 
@@ -968,10 +962,10 @@ buttonWindow.grid(row=1, column=0, padx=5, pady=5)
 testButton = Button(buttonWindow, text="Start All", command=lambda : populateAll(data, canvas1, canvas2, canvas3), bg="green", fg="white")
 testButton.grid(row=0, column=0, padx=5, pady=5)
 # Generate data when button pressed
-randomButton = Button(buttonWindow, text="Randomize Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg="blue", fg="white")
+randomButton = Button(buttonWindow, text="Randomize Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg=nodeColor, fg="black")
 randomButton.grid(row=0, column=1, padx=5, pady=5)
 # Insert selected value
-insertButton = Button(buttonWindow, text="Insert Value", command=lambda : insertIntoAll(int(insertSelect.get()), canvas1, canvas2, canvas3), bg=nodeColor, fg="black")
+insertButton = Button(buttonWindow, text="Insert Value", command=lambda : insertIntoAll(int(insertSelect.get()), canvas1, canvas2, canvas3), bg=insertColor, fg="white")
 insertButton.grid(row=0, column=2, padx=5, pady=5)
 # Remove selected value
 removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg=removeColor, fg="white")
