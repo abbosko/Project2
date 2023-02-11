@@ -159,7 +159,7 @@ class SkipList:
         return None 
 
     # draws differently colored nodes in the path of the find operation
-    def animateFind(self, key, canvas: Canvas):
+    def animateFind(self, key, canvas: Canvas, delay=True):
         canvas.delete("all")
         self.drawSkipList(canvas)
         global padX
@@ -188,6 +188,9 @@ class SkipList:
                 radius = calculateRadius(allRows[element[0]][element[1]].key)
                 canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
                 canvas.create_text(currX, currY, text=str(allRows[element[0]][element[1]].key), fill="black")
+            if(delay):  # delay between highlights
+                root.after(delaySelect.get())
+                root.update()
 
     # inserts a new node with the given key
     def insert(self, key):
@@ -253,7 +256,9 @@ class SkipList:
             else:
                 column = rows[i].index(ptr)
             fullPath.append((i, column))
-            
+        # add final element
+        if ptr.next[0] and ptr.next[0].key == key:
+            fullPath.append((0, rows[0].index(ptr.next[0])))
         # return the FULL path taken down the list
         # tuple of (row, column)
         return fullPath
@@ -540,53 +545,66 @@ def calculateRadius(key):
 # Animates the insertion of every data point into each of the three data structures
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global redBlackTree
-    global fibHeap
+    # global fibHeap
+    # global rbt
     
     # reset data structures
     skipList = SkipList()
-    # redBlackTree = RedBlackTree()
-    fibHeap = FibonacciHeap()
-    linkedList3 = LinkedList()
 
-    for num in data:
-        # dataStructure.insert(num)
-        # dataStructure.drawDataStructure(canvasX)
-        # root.update()
-        skipList.insert(num)
-        skipList.drawSkipList(canvas1)
-        # root.update()
-
-        fibHeap.insert(num)
-        fibHeap.drawFibHeap(canvas2)
-        # root.update()
-
-        linkedList3.insert(num)
-        linkedList3.drawLinkedList(canvas3)
-        root.update()
+    for index, num in enumerate(data):
+        if(index != 0):
+            skipList.animateFind(num, canvas1, True)    # draw with delays
+            skipList.insert(num)
+            skipList.animateFind(num, canvas1, False)   # redraw with no delays
+        else:
+            skipList.insert(num)
         root.after(delaySelect.get())   # delay after every data structure is updated
+        root.update()
+    skipList.drawSkipList(canvas1)
+    # fibHeap
+    # rbt
+
+# Animates the insertion of a specified data point into each of the three data structures
+def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
+    global skipList
+    # global fibHeap
+    # global rbt
+
+    # do not insert duplicates
+    if(skipList.find(num) != None):
+        return
+    # check in fib heap
+    # check in rbt
+
+    skipList.animateFind(num, canvas1, True)    # draw with delays
+    skipList.insert(num)
+    skipList.animateFind(num, canvas1, False)   # redraw with no delays
+    root.after(delaySelect.get())
+    root.update()
+
+    # fibHeap
+
+    # rbt
+
+    root.after(delaySelect.get())   # delay after every data structure is updated
 
 # Animates the removal of a specified data point from each of the three data structures
 def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    global fibHeap
-    # global redBlackTree
+    # global fibHeap
+    # global rbt
 
-    # dataStructure.remove(num)
-    # dataStructure.drawDataStructure(canvasX)
-    # root.update()
+    # do not insert duplicates
+    if(skipList.find(num) != None):
+        return
+    # check in fib heap
+    # check in rbt
 
-    skipList.remove(num)
-    skipList.drawSkipList(canvas1)
+    skipList.animateFind(num, canvas1, True)    # draw with delays
+    skipList.insert(num)
+    skipList.animateFind(num, canvas1, False)   # redraw with no delays
+    root.after(delaySelect.get())
     root.update()
-
-    fibHeap.delete(num)
-    fibHeap.drawFibHeap(canvas2)
-    root.update()
-
-    # linkedList3.remove(num)
-    # linkedList3.drawLinkedList(canvas3)
-    # root.update()
 
     root.after(delaySelect.get())   # delay after every data structure is updated
 
@@ -625,7 +643,10 @@ def generateData(elements, minInt, maxInt):
     global data
     data = []
     for i in range(0, elements):
-        data.append(random.randint(minInt, maxInt))
+        tempInt = random.randint(minInt, maxInt)
+        while tempInt in data:  # no duplicate values
+            tempInt = random.randint(minInt, maxInt)
+        data.append(tempInt)
     dataString.set(data)
 
 root = Tk()
@@ -640,6 +661,7 @@ elementsVar = IntVar(value=10)
 minimumVar = IntVar(value=1)
 maximumVar = IntVar(value=99)
 dataString = StringVar()    # used to update dataViewLabel
+insertVar = IntVar(value=1)
 removeVar = IntVar(value=1)
 findVar = IntVar(value=1)
 
@@ -695,15 +717,18 @@ testButton.grid(row=0, column=0, padx=5, pady=5)
 # Generate data when button pressed
 randomButton = Button(buttonWindow, text="Randomize Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg="blue", fg="white")
 randomButton.grid(row=0, column=1, padx=5, pady=5)
+# Insert selected value
+insertButton = Button(buttonWindow, text="Insert Value", command=lambda : insertIntoAll(int(insertSelect.get()), canvas1, canvas2, canvas3), bg="yellow", fg="black")
+insertButton.grid(row=0, column=2, padx=5, pady=5)
 # Remove selected value
 removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="purple", fg="white")
-removeButton.grid(row=0, column=2, padx=5, pady=5)
+removeButton.grid(row=0, column=3, padx=5, pady=5)
 # Find selected value
 findButton = Button(buttonWindow, text="Find Value", command=lambda : findInAll(int(findSelect.get()), canvas1, canvas2, canvas3), bg="magenta", fg="white")
-findButton.grid(row=0, column=3, padx=5, pady=5)
+findButton.grid(row=0, column=4, padx=5, pady=5)
 # Reset button
 sortButton = Button(buttonWindow, text="Clear Canvas", command=clearCanvas, bg="red", fg="white")
-sortButton.grid(row=0, column=4, padx=5, pady=5)
+sortButton.grid(row=0, column=5, padx=5, pady=5)
 # Options Window
 optionWindow = Frame(buttonOptionWindow, width=canvasWidth, height=100, bg="white")
 optionWindow.grid(row=3, column=0, padx=5, pady=5)
@@ -731,17 +756,23 @@ maximumLabel.grid(row=0, column=5, padx=5, pady=5)
 # Maximum select
 maximumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=maximumVar, width=spinboxWidth)
 maximumSelect.grid(row=1, column=5, padx=5, pady=5)
+# Insert label
+insertLabel = Label(optionWindow, text="Insert", bg="yellow", fg="black")
+insertLabel.grid(row=0, column=6, padx=5, pady=5)
+# Insert select
+insertSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=insertVar, width=spinboxWidth)
+insertSelect.grid(row=1, column=6, padx=5, pady=5)
 # Remove label
-removeLabel = Label(optionWindow, text="Remove", bg="white", fg="black")
-removeLabel.grid(row=0, column=6, padx=5, pady=5)
+removeLabel = Label(optionWindow, text="Remove", bg="purple", fg="white")
+removeLabel.grid(row=0, column=7, padx=5, pady=5)
 # Remove select
 removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=removeVar, width=spinboxWidth)
-removeSelect.grid(row=1, column=6, padx=5, pady=5)
+removeSelect.grid(row=1, column=7, padx=5, pady=5)
 # Find label
-findLabel = Label(optionWindow, text="Find", bg="white", fg="black")
-findLabel.grid(row=0, column=7, padx=5, pady=5)
+findLabel = Label(optionWindow, text="Find", bg="magenta", fg="white")
+findLabel.grid(row=0, column=8, padx=5, pady=5)
 # Remove select
 findSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=findVar, width=spinboxWidth)
-findSelect.grid(row=1, column=7, padx=5, pady=5)
+findSelect.grid(row=1, column=8, padx=5, pady=5)
 
 root.mainloop()
