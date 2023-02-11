@@ -163,6 +163,7 @@ class SkipList:
         global padX
         global padY
         path = self.getFullPath(key)  # TODO update when written
+        print(path) # DEBUG
         allRows = self.getRows()
         # inner function to determine the X value of the given node
         def findX(node):
@@ -171,12 +172,12 @@ class SkipList:
         def findY(allRows, rowIndex):
             return (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (rowIndex + 1)) + padY
         # TODO use the new function self.getFullPath(key)
-        for element in path:
-            currX = findX(allRows[element[0]][element[1]])
-            currY = findY(allRows, element[1])  # may be [0]
-            radius = calculateRadius(element.key)
-            canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
-            canvas.create_text(currX, currY, text=str(element.key), fill="black")
+        # for element in path:
+        #     currX = findX(allRows[element[0]][element[1]])
+        #     currY = findY(allRows, element[1])  # may be [0]
+        #     radius = calculateRadius(element.key)
+        #     canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
+        #     canvas.create_text(currX, currY, text=str(element.key), fill="black")
 
     # inserts a new node with the given key
     def insert(self, key):
@@ -202,9 +203,6 @@ class SkipList:
 
     # returns list of nodes in row r
     def getRow(self, r):
-        # return None if r > height of SkipList
-        # if(r > len(self.head.next) - 1):  # return None is not helpful in this instance
-        #     return None
         # iterate through given row r
         nodes = []
         nodePtr = self.head
@@ -223,6 +221,30 @@ class SkipList:
         for i in range(len(self.head.next)):
             rows.append(self.getRow(i))
         return rows
+
+    # # return tuples of indicies
+    # def getFullPath(self, key):
+    #     # initializes array to hold the nodes where we "shift down" a level
+    #     allRows = self.getRows()
+    #     fullPath = []
+    #     # searches down the list for the key, but stops when it hits the bottom
+    #     ptr = self.head
+    #     while ptr.key != key:
+    #         for index, nextNode in enumerate(reversed(ptr.next)):
+    #             if(nextNode.key < key):
+    #                 ptr = nextNode
+    #                 fullPath.append(ptr)    # should be tuple of indicies TODO
+    #                 break
+    #         if(ptr.key != key):
+    #             break
+    #     if(ptr.key == key):
+    #         fullPath.append(ptr)    # should be tuple of indicies TODO
+        
+    #     for element in fullPath:
+    #         print(element.key)    # DEBUG
+
+    #     # return the FULL path taken down the list
+    #     return fullPath
     
     def drawSkipList(self, canvas: Canvas):
         canvas.delete("all")
@@ -614,6 +636,7 @@ canvasWidth = 800
 canvasHeight = 400
 padX = 50
 padY = 50
+spinboxWidth = 5
 # Create all data structures
 skipList = SkipList()  # create Skip List
 # redBlackTree = RedBlackTree() # create RBT
@@ -676,37 +699,37 @@ optionWindow.grid(row=3, column=0, padx=5, pady=5)
 delayLabel = Label(optionWindow, text="Delay (ms)", bg="white", fg="black")
 delayLabel.grid(row=0, column=2, padx=5, pady=5)
 # Wait time select (lower number is faster)
-delaySelect = Spinbox(optionWindow, from_=0, to=5000, increment=100)
+delaySelect = Spinbox(optionWindow, from_=0, to=5000, increment=100, width=spinboxWidth)
 delaySelect.grid(row=1, column=2, padx=5, pady=5)
 # Number of elements label
 elementsLabel = Label(optionWindow, text="Elements", bg="white", fg="black")
 elementsLabel.grid(row=0, column=3, padx=5, pady=5)
 # Number of elements select
-elementsSelect = Spinbox(optionWindow, from_=1, to=20, increment=1, textvariable=elementsVar)
+elementsSelect = Spinbox(optionWindow, from_=1, to=20, increment=1, textvariable=elementsVar, width=spinboxWidth)
 elementsSelect.grid(row=1, column=3, padx=5, pady=5)
 # Minimum label
 minimumLabel = Label(optionWindow, text="Minimum", bg="white", fg="black")
 minimumLabel.grid(row=0, column=4, padx=5, pady=5)
 # Minimum select
-minimumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=minimumVar)
+minimumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=minimumVar, width=spinboxWidth)
 minimumSelect.grid(row=1, column=4, padx=5, pady=5)
 # Maximum label
 maximumLabel = Label(optionWindow, text="Maximum", bg="white", fg="black")
 maximumLabel.grid(row=0, column=5, padx=5, pady=5)
 # Maximum select
-maximumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=maximumVar)
+maximumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=maximumVar, width=spinboxWidth)
 maximumSelect.grid(row=1, column=5, padx=5, pady=5)
 # Remove label
 removeLabel = Label(optionWindow, text="Remove", bg="white", fg="black")
 removeLabel.grid(row=0, column=6, padx=5, pady=5)
 # Remove select
-removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=removeVar)
+removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=removeVar, width=spinboxWidth)
 removeSelect.grid(row=1, column=6, padx=5, pady=5)
 # Find label
 findLabel = Label(optionWindow, text="Find", bg="white", fg="black")
 findLabel.grid(row=0, column=7, padx=5, pady=5)
 # Remove select
-findSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=findVar)
+findSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=findVar, width=spinboxWidth)
 findSelect.grid(row=1, column=7, padx=5, pady=5)
 
 root.mainloop()
