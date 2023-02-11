@@ -135,17 +135,19 @@ class SkipList:
                 column = rows[i].index(ptr)
             fullPath.append((i, column))
             print("adding " + str(i) + ", " + str(column) + " to list")
-            
+        
+        if ptr.next[0] and ptr.next[0].key == key:
+            fullPath.append((0, rows[0].index(ptr.next[0])))
         # return the FULL path taken down the list
         # tuple of (row, column)
         return fullPath
 
-def main():
-    sl = SkipList()
-    for i in range (1, 50):
-        sl.insert(i)
-    fullPath = sl.getFullPath(40)
-    print(fullPath)
+# def main():
+#     sl = SkipList()
+#     for i in range (1, 50):
+#         sl.insert(i)
+#     fullPath = sl.getFullPath(40)
+#     print(fullPath)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
