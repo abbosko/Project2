@@ -1,7 +1,7 @@
 # CS 470 Team 2, February 2023
 # Skip List - Sam Gaines and Scott Ratchford
 # Red-Black Tree -
-# Fibbonaci Heap - 
+# Fibbonaci Heap - Abbie Bosko and Audrey Kim
 # Animations - Scott Ratchford
 
 from tkinter import *
@@ -9,7 +9,10 @@ import random
 import time
 import math
 import sys
+from fibheap import FibonacciHeap
 
+global fibheap
+fibheap = FibonacciHeap()
 # Linked List Code
 
 class LinkedList:
@@ -240,7 +243,7 @@ def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # create Fib Heap
 
     skipList1 = SkipList()
-    linkedList2 = LinkedList()  # DEBUG
+    # fibheap = FibonacciHeap()  # DEBUG
     linkedList3 = LinkedList()  # DEBUG
 
     for num in data:
@@ -250,14 +253,39 @@ def startAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
         skipList1.insert(num)
         skipList1.drawSkipList(canvas1)
         root.update()
-        linkedList2.insert(num)
-        linkedList2.drawLinkedList(canvas2)
+        fibheap.insert(num)
+        fibheap.drawFibHeap( canvas2)
         root.update()
         linkedList3.insert(num)
         linkedList3.drawLinkedList(canvas3)
         root.update()
         root.after(delaySelect.get())   # delay after every data structure is updated
+    # fibheap.insert(13)
+    # fibheap.delete(data[2])
+    # fibheap.drawFibHeap( canvas2)
+def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
+    global skipList
+    # global fibHeap
+    # global redBlackTree
 
+    # dataStructure.remove(num)
+    # dataStructure.drawDataStructure(canvasX)
+    # root.update()
+
+    # skipList.remove(num)
+    # skipList.drawSkipList(canvas1)
+    root.update()
+
+    fibheap.delete(num)
+    fibheap.drawFibHeap(canvas2)
+    root.update()
+
+    # linkedList3.remove(num)
+    # linkedList3.drawLinkedList(canvas3)
+    # root.update()
+
+    root.after(delaySelect.get())   # delay after every data structure is updated
+    return
 def getCanvasX(canvas: Canvas):
     return canvas.winfo_width()
 
@@ -289,6 +317,7 @@ elementsVar = IntVar(value=10)
 minimumVar = IntVar(value=1)
 maximumVar = IntVar(value=99)
 dataString = StringVar()    # used to update dataViewLabel
+removeVar = IntVar(value=1)
 
 # Global variables
 canvasWidth = 800
@@ -307,7 +336,7 @@ canvas2Label.grid(row=0, column=1, padx=5, pady=5)
 canvas2 = Canvas(root, width=canvasWidth, height=canvasHeight, bg="gray")
 canvas2.grid(row=1, column=1, padx=10, pady=5)
 # canvas3 label
-canvas3Label = Label(root, text="Canvas 3", bg="white", fg="black") # DEBUG, change "Canvas 3" to correct data structure
+canvas3Label = Label(root, text="Fibonacci Heap", bg="white", fg="black") # DEBUG, change "Canvas 3" to correct data structure
 canvas3Label.grid(row=2, column=0, padx=5, pady=5)
 # canvas3
 canvas3 = Canvas(root, width=canvasWidth, height=canvasHeight, bg="gray")
@@ -364,5 +393,10 @@ maximumLabel.grid(row=0, column=5, padx=5, pady=5)
 # Maximum select
 maximumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=maximumVar)
 maximumSelect.grid(row=1, column=5, padx=5, pady=5)
+removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=100, textvariable=removeVar)
+removeSelect.grid(row=1, column=6, padx=5, pady=5)
+
+removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="purple", fg="white")
+removeButton.grid(row=0, column=2, padx=5, pady=5)
 
 root.mainloop()

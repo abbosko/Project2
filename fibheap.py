@@ -1,19 +1,45 @@
 import math 
+from tkinter import * 
+
 
 class FibNode:
     def __init__(self, key):
         self.key = key
         self.degree = 0
         self.parent = self.left = self.right= self.child = None
+        self.childList = []
         self.color = 'N'     # for find
-        self.mark = False    #flag for find 
+        self.mark = False    #flag for cut
+        self.k = 0
+        self.head = None
 
+    def drawFibNode(self, canvas: Canvas, X, Y, color, rootList):
+        radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on number of digits
+        # currX = index * ((canvas.winfo_width() - padX) / len(rootList)) + padX
+        # currY = (canvas.winfo_height()- padY) / 2
+        canvas.create_oval(X-radius, Y-radius, X+radius, Y+radius, fill=color)
+        canvas.create_text(X, Y, text=str(self.key), fill="black")
+        
+        # nextIndex = index + 1
+        # if(nextIndex > len(rootList) - 1):
+            # return
+        # else:
+            # draw arrows between each node
+        # nextX = (index + 1) * ((canvas.winfo_width() - X) / len(rootList)) + X
+        # nextY = (canvas.winfo_height() - Y) / 2
+        # arrowLength = (nextX - X) * 0.5    # arrow length as a function of line length
+        # canvas.create_line(X+radius, Y, nextX-radius, nextY, fill="black")
+        # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY+math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
+        # canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY-math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
     
+    def drawLine(self, canvas: Canvas, x, y):
+       pass
 class FibonacciHeap:
     def __init__(self):
         self.min = None
         self.nodeCount = 0
         self.finder = None
+        self.rootList = []
     
     def addToRootList(self, node):
         if self.min is None:
@@ -23,6 +49,23 @@ class FibonacciHeap:
             node.left = self.min
             self.min.right.left = node
             self.min.right = node
+
+    def populateRootList(self):
+        self.rootList.clear()
+        ptr1 = self.min
+        if (ptr1 == None):
+          return
+    
+        else:
+        
+            self.rootList.append(ptr1)
+           
+            ptr = ptr1.right
+            while(ptr != ptr1):
+               
+                self.rootList.append(ptr)
+                ptr = ptr.right
+
     
     def removeFromRootList(self, node):
         if node == self.min:
@@ -35,10 +78,11 @@ class FibonacciHeap:
         if( smaller.right == smaller):
             self.min = smaller
         bigger.left = bigger
-        bigger.right = bigger
+        # bigger.right = bigger
         bigger.parent = smaller
         if(smaller.child == None):
             smaller.child = bigger
+            # smaller.head = bigger
         bigger.right = smaller.child 
         bigger.left = smaller.child.left
         smaller.child.left.right = bigger
@@ -46,12 +90,15 @@ class FibonacciHeap:
         if bigger.key < smaller.child.key:
             smaller.child = bigger
         smaller.degree+=1
+        smaller.childList.append(bigger)
         smaller.mark = False
+
         
 
     def addToChildList(self, parent, node):
         if parent.child is None:
             parent.child = node
+            # parent.head = node
         else:
             node.left = parent.child
             node.right = parent.child.right
@@ -62,7 +109,7 @@ class FibonacciHeap:
 
         #if only one child 
         if (parent.child == parent.child.right):
-            parent.child = None
+            parent = None
         
         #when found node cut it out by reset ptrs
         elif parent.child == node:
@@ -72,6 +119,7 @@ class FibonacciHeap:
         # cut out
         node.left.right = node.right
         node.right.left = node.left
+        parent.childList.remove(node)
 
 
     def insert(self, key):
@@ -88,9 +136,10 @@ class FibonacciHeap:
         if self.min is None or newNode.key < self.min.key:
                 self.min = newNode
       
-
+       
         self.nodeCount += 1
 
+        
 
 
     def find_min(self):
@@ -127,7 +176,7 @@ class FibonacciHeap:
      
                     if( i.key <  self.min.key):
                         self.min = i
-                    # self.removeFromChildList(children[i])
+                    # self.removeFromChildList(oldMin, children[i])
                     i.parent = None
     
 
@@ -167,6 +216,7 @@ class FibonacciHeap:
                 self.addToTree(second, first) # link tree
                 aux[degree] = None #reset to 0
                 degree += 1    
+               
             aux[degree] = first
         self.min = None
         # for i in array:
@@ -261,7 +311,7 @@ class FibonacciHeap:
                 # Calling Extract_min function to delete node
                 self.extract_min()
 
- 
+    # print (non animation)
     def display(self):
         ptr1 = self.min
         if (ptr1 == None):
@@ -274,14 +324,81 @@ class FibonacciHeap:
             while(ptr != ptr1):
                 print(ptr.key,"->", end='')
                 ptr = ptr.right
-                
+
+            print("\n")
+            print(ptr1.key, "Child: ", end='')
+            for x in ptr1.childList:
+                    print(x.key, end = ' ')
+            print("\n")
+            ptr = ptr1.right
+            while(ptr != ptr1):
+                print(ptr.key," Child: ", end='')
+                for x in ptr.childList:
+                    print(x.key, end = ' ')
+                print("\n")
+                ptr = ptr.right
+
             print()
             print("Node count", self.nodeCount)
+
+    def drawFibHeap(self, canvas): 
+        # self.populateRootList()
+        printList = []
+        canvas.delete("all")
+        # if(self.rootList == None or len(self.rootList) < 1):   # Do not draw anything if the LinkedList is empty
+            # return
+
+        node = self.min
+        # node.drawFibNode(canvas, 50, 50,  "yellow", self.rootList, self.rootList.index(node))
+     
+        # if (node.child is not None):
+        self.drawFib(node,canvas,50,50, 0, printList)
+        # elif (self.min.right is not None):
+            # self.drawFib(self.min.right,canvas,0,0)
+        # else:
+            # return
+
+    
+      
+       
+    
+    def drawFib(self, node, canvas,  x, y, i, printList):
+        color = 'yellow'
+    
+    
+        if(node == self.min):
+            color = 'cyan'
+            i+=1
+        if (node is None or i>1):
+            i=0
+            return
+      
+      
+
+        node.drawLine(canvas, x,y)
+        
+     
+        node.drawFibNode(canvas, x, y,  color, self.rootList)
           
+     
+        # if(node.child is not None):
+        self.drawFib(node.child, canvas, x , y + 20, i, printList)
+        # if(node.parent is not None and node.parent.head == node):
+        #     node.k+=1
+        #     if(node.k == 1):
+        # if (node.right is not None and node.right != node):
+        
+        
+        self.drawFib(node.right, canvas, x + 20, y, i, printList)
+        # else:
+        # self.drawFib(node.right, canvas, x + 20, y, i)
+
+        
 
 
+'''
 
-'''## for testing purposes
+## for testing purposes
 if __name__ == '__main__':
     fib_heap = FibonacciHeap()
     fib_heap.insert(7)
