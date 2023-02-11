@@ -91,6 +91,10 @@ class SkipList:
         if(nodeToRemove != None):
             for i in range(len(nodeToRemove.next)):
                 path[i].next[i] = nodeToRemove.next[i]
+        # adjust length of head's next pointers
+        while None in self.head.next:
+            self.head.next.remove(None)
+
 
     # returns list of nodes in row r
     def getRow(self, r):
