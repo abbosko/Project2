@@ -803,7 +803,6 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     
     # reset data structures
     skipList = SkipList()
-    redBlackTree = RBTree()
 
     for index, num in enumerate(data):
         if(index != 0):
