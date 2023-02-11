@@ -276,6 +276,7 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # skipList.drawSkipList(canvas1)
     root.update()
 
+    canvas2.delete("all")
     fibheap.delete(num)
     fibheap.drawFibHeap(canvas2)
     root.update()

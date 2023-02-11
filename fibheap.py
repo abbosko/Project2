@@ -10,10 +10,10 @@ class FibNode:
         self.childList = []
         self.color = 'N'     # for find
         self.mark = False    #flag for cut
-        self.k = 0
+        self.k = 'N'
         self.head = None
 
-    def drawFibNode(self, canvas: Canvas, X, Y, color, rootList):
+    def drawFibNode(self, canvas: Canvas, X, Y, color):
         radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on number of digits
         # currX = index * ((canvas.winfo_width() - padX) / len(rootList)) + padX
         # currY = (canvas.winfo_height()- padY) / 2
@@ -78,11 +78,10 @@ class FibonacciHeap:
         if( smaller.right == smaller):
             self.min = smaller
         bigger.left = bigger
-        # bigger.right = bigger
+        bigger.right = bigger
         bigger.parent = smaller
         if(smaller.child == None):
             smaller.child = bigger
-            # smaller.head = bigger
         bigger.right = smaller.child 
         bigger.left = smaller.child.left
         smaller.child.left.right = bigger
@@ -169,8 +168,7 @@ class FibonacciHeap:
             if(oldMin.child != None):
                 # if the min has children
                 #for every child of old minimum add to root list
-                children = [x for x in self.iterate(oldMin.child)]
-
+                children = [x for x in self.iterate(oldMin.child)]               
                 for i in children:
                     self.addToRootList(i)
      
@@ -219,6 +217,7 @@ class FibonacciHeap:
                
             aux[degree] = first
         self.min = None
+ 
         # for i in array:
         #    self.addToRootList(i)
         # self.min = None
@@ -343,94 +342,37 @@ class FibonacciHeap:
 
     def drawFibHeap(self, canvas): 
         # self.populateRootList()
-        printList = []
-        canvas.delete("all")
+        # canvas.delete("all")
         # if(self.rootList == None or len(self.rootList) < 1):   # Do not draw anything if the LinkedList is empty
-            # return
-
         node = self.min
-        # node.drawFibNode(canvas, 50, 50,  "yellow", self.rootList, self.rootList.index(node))
-     
-        # if (node.child is not None):
-        self.drawFib(node,canvas,50,50, 0, printList)
-        # elif (self.min.right is not None):
-            # self.drawFib(self.min.right,canvas,0,0)
-        # else:
-            # return
-
-    
-      
-       
-    
-    def drawFib(self, node, canvas,  x, y, i, printList):
-        color = 'yellow'
-    
-    
-        if(node == self.min):
-            color = 'cyan'
-            i+=1
-        if (node is None or i>1):
-            i=0
+        node.drawFibNode(canvas, 50, 50,  'yellow')
+        if(node.child != None):
+            
+            self.drawFib(node.child, canvas, 70,70, node)
+        elif (node.right):
+            self.drawFib(node.right, canvas, 70,70, node)
+        else: 
             return
-      
-      
 
-        node.drawLine(canvas, x,y)
-        
-     
-        node.drawFibNode(canvas, x, y,  color, self.rootList)
-          
-     
-        # if(node.child is not None):
-        self.drawFib(node.child, canvas, x , y + 20, i, printList)
-        # if(node.parent is not None and node.parent.head == node):
-        #     node.k+=1
-        #     if(node.k == 1):
-        # if (node.right is not None and node.right != node):
-        
-        
-        self.drawFib(node.right, canvas, x + 20, y, i, printList)
-        # else:
-        # self.drawFib(node.right, canvas, x + 20, y, i)
+    def drawFib(self, node, canvas,  x, y, begin):
 
-        
+        ptr = node
+        ptr.k = 'Y'
+        color = 'yellow'
 
+        if(ptr == begin):
+            ptr.k = 'N'
+            return 
 
-'''
-
-## for testing purposes
-if __name__ == '__main__':
-    fib_heap = FibonacciHeap()
-    fib_heap.insert(7)
-    fib_heap.insert(30)
-    fib_heap.insert(24)
-    fib_heap.insert(26)
-    fib_heap.insert(35)
-    fib_heap.insert(46)
-    fib_heap.insert(23)
-    fib_heap.insert(17)
-    fib_heap.insert(3)
-    fib_heap.insert(8)
-
-    fib_heap.display()
-    
-    fib_heap.delete(26)
-    fib_heap.display()
-
-    fib_heap.delete(8)
-    fib_heap.display()
-
-    fib_heap.delete(35)
-    fib_heap.display()
-
-    fib_heap.delete(17)
-    fib_heap.display()
-    
-    fib_heap.delete(3)
-    fib_heap.display()
-
-    fib_heap.delete(23)
-    fib_heap.display()
+        else:
+            if( ptr == self.min): color = 'cyan'
+            ptr.drawFibNode(canvas, x, y,  color)
+            if(ptr.child != None):
+                y+=20
+                self.drawFib(node.child,canvas, x, y, begin)
+            if (ptr.right.k != 'Y'):
+                x+=20
+                self.drawFib(node.right, canvas, x, y,  begin);
+        ptr.k = 'N'
+       
    
-
-# insert, delete, and find '''
