@@ -312,8 +312,9 @@ class SkipList:
                     node.drawSkipNode(canvas, currX, currY, nodeColor)
                     nodeMatrix[rowIndex][bottomIndex] = (node, currX, currY)
 
-# Fib Heap code
+# Fib Heap Code
 
+# fib heap node class
 class FibNode:
     def __init__(self, key):
         self.key = key
@@ -322,6 +323,7 @@ class FibNode:
         self.color = 'N'     # for find
         self.mark = False    # flag for find 
 
+# fib heap class
 class FibonacciHeap:
     def __init__(self):
         self.min = None
@@ -543,6 +545,7 @@ class FibonacciHeap:
 
 # Red Black Tree Code
 
+# red black tree node class
 class RBTreeNode:
     def __init__(self, key):
         self.key = key
@@ -551,6 +554,7 @@ class RBTreeNode:
         self.right = None
         self.color = 1       # 1=red , 0=black
 
+# red black tree class
 class RBTree:
     def __init__(self):
         self.root = RBTreeNode(0)
@@ -695,7 +699,7 @@ class RBTree:
 
     # Node Insertion
     def insert(self, key):
-        node = RBNode(key)
+        node = RBTreeNode(key)
         node.parent = None
         node.key = key
         node.left = self.NULL
@@ -763,6 +767,29 @@ class RBTree:
             if k == self.root:
                 break
         self.root.color = 0
+
+    # Misc.
+
+    def getLevels(self):
+        # Initialize list to return
+        listOfLevels = []
+
+        def getLevelsHelper(node, l):
+            # If node's value is 0 (at leaf), return
+            if node.key == 0:
+                return
+            # If first time entering level, initalize and append the level's list to main list
+            if l >= len(listOfLevels):
+                list = []
+                listOfLevels.append(list)
+            # Append node to the level's list
+            listOfLevels[l].append(node)
+            getLevelsHelper(node.left, l+1)
+            getLevelsHelper(node.right, l+1)
+
+        getLevelsHelper(self.root, 0)
+
+        return listOfLevels
 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
