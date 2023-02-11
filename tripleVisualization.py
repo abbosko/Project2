@@ -805,11 +805,12 @@ class RBTree:
             # For each value in level
             currDegree = degreeIndex
             currY = (((getCanvasY(canvas) + (padY * 2)) / (numDegrees + 1)) * (currDegree + 1)) - padY
-            for levelIndex, key in enumerate(allLevels[0]):
+            for levelIndex, key in enumerate(allLevels[degreeIndex]):
                 currDegree = degreeIndex
                 currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
                 radius = calculateRadius(key)
                 canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="red")
+                canvas.create_text(currX, currY, text=key, fill="black")
                 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
