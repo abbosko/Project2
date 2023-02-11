@@ -271,18 +271,14 @@ class SkipList:
         global padX
         global padY
         allRows = self.getRows()
-        maxLen = 0
-        for index, row in enumerate(allRows):
-            if(len(row) > maxLen):
-                maxLen = len(row)
         topY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1))) + padY
         bottomY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * len(allRows)) + padY
         # create tuples of (key, x) to determine the x position on upper rows
         bottomRow = []
-        leftX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (1)) + padX
+        leftX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2))) + padX
         canvas.create_line(leftX, bottomY, leftX, topY, fill="black") # draw vertical lines between nodes
         for rowIndex, node in enumerate(allRows[0]):    # determine x values for the bottom row
-            currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (rowIndex + 2)) + padX # currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 1)) * (rowIndex + 1)) + padX
+            currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (rowIndex + 2)) + padX # Reference this one for an example
             bottomRow.append((node.key, currX)) # tuple of (key, x)
             canvas.create_line(currX, bottomY, currX, topY, fill="black") # draw vertical lines between nodes
 
@@ -793,7 +789,10 @@ class RBTree:
 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
-    return 10 + (len(str(key))) * 1.2   # determine radius of node based on length of the string
+    if(10 + (len(str(key))) * 1.2 > 12.4):
+        return 10 + (len(str(key))) * 1.2   # determine radius of node based on length of the string
+    else:
+        return 12.4
 
 # Animates the insertion of every data point into each of the three data structures
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
@@ -888,7 +887,6 @@ def generateData(elements, minInt, maxInt):
         while tempInt in data:  # no duplicate values
             tempInt = random.randint(minInt, maxInt)
         data.append(tempInt)
-    dataString.set(data)
 
 root = Tk()
 root.title("Data Structures Visualization")
@@ -901,7 +899,6 @@ random.seed(time.time())
 elementsVar = IntVar(value=10)
 minimumVar = IntVar(value=1)
 maximumVar = IntVar(value=99)
-dataString = StringVar()    # used to update dataViewLabel
 insertVar = IntVar(value=1)
 removeVar = IntVar(value=1)
 findVar = IntVar(value=1)
@@ -910,7 +907,7 @@ findVar = IntVar(value=1)
 nodeColor = "yellow"
 insertColor = "blue"
 removeColor = "red"
-findColor = "pink"
+findColor = "magenta"
 
 # Global variables
 canvasWidth = 800
@@ -949,11 +946,6 @@ canvasCountLabel.grid(row=2, column=1, padx=5, pady=5)
 # Button-Option Window
 buttonOptionWindow = Frame(root, width=canvasWidth, height=canvasHeight, bg="white")
 buttonOptionWindow.grid(row=3, column=1, padx=5, pady=5)
-
-# Data view window
-dataViewLabel = Label(buttonOptionWindow, textvariable=dataString, bg="white", fg="black")
-dataViewLabel.grid(row=0, column=0, padx=5, pady=5)
-dataViewLabel.config(font=("Courier", 16))
 
 # Button Window
 buttonWindow = Frame(buttonOptionWindow, width=canvasWidth, height=100, bg="white")
