@@ -53,7 +53,7 @@ class LinkedList:
         thisData = self.asList()
         currNode = self.next
         for index, node in enumerate(currNode.asList()):   # While there are nodes remaining
-            currNode.drawNode(index, thisData, canvas, padX, padY, "yellow")
+            currNode.drawNode(index, thisData, canvas, padX, padY, nodeColor)
 
 class Node(LinkedList):
     def __init__(self, value, next=None):
@@ -210,9 +210,12 @@ class SkipList:
         # updates pointers around each height level the node is in
         path = self.getPath(key)
         nodeToRemove = self.find(key, path)
-        if(nodeToRemove != None):
-            for i in range(len(nodeToRemove.next)):
-                path[i].next[i] = nodeToRemove.next[i]
+        if(nodeToRemove == None):
+            return
+        for i in range(len(nodeToRemove.next)):
+            path[i].next[i] = nodeToRemove.next[i]
+        while(None in self.head.next):
+            self.head.next.remove(None)
 
     # returns list of nodes in row r
     def getRow(self, r):
@@ -298,16 +301,15 @@ class SkipList:
         for index, row in enumerate(reversed(allRows)):
             currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (index + 1)) + padY
             for rowIndex, node in enumerate(row):
-                color = "yellow"
                 found = True
                 for bottomIndex, element in enumerate(bottomRow):
                     if(element[0] == node.key):
-                        node.drawSkipNode(canvas, element[1], currY, color)
+                        node.drawSkipNode(canvas, element[1], currY, nodeColor)
                         nodeMatrix[index][bottomIndex] = (node, currX, currY)
                         found = True
                 if(not found):  # found is a bool, so duplicates do not yet appear
                     currX = (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (rowIndex + 2)) + padX  # for now, currX is determined per row
-                    node.drawSkipNode(canvas, currX, currY, color)
+                    node.drawSkipNode(canvas, currX, currY, nodeColor)
                     nodeMatrix[rowIndex][bottomIndex] = (node, currX, currY)
 
 # Fib Heap code
@@ -594,17 +596,11 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # global fibHeap
     # global rbt
 
-    # do not insert duplicates
-    if(skipList.find(num) != None):
-        return
-    # check in fib heap
-    # check in rbt
-
     skipList.animateFind(num, canvas1, True)    # draw with delays
-    skipList.insert(num)
-    skipList.animateFind(num, canvas1, False)   # redraw with no delays
+    skipList.remove(num)
     root.after(delaySelect.get())
     root.update()
+    skipList.drawSkipList(canvas1)
 
     root.after(delaySelect.get())   # delay after every data structure is updated
 
@@ -665,6 +661,12 @@ insertVar = IntVar(value=1)
 removeVar = IntVar(value=1)
 findVar = IntVar(value=1)
 
+# Color coordination variables
+nodeColor = "yellow"
+insertColor = "blue"
+removeColor = "red"
+findColor = "pink"
+
 # Global variables
 canvasWidth = 800
 canvasHeight = 400
@@ -718,16 +720,16 @@ testButton.grid(row=0, column=0, padx=5, pady=5)
 randomButton = Button(buttonWindow, text="Randomize Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg="blue", fg="white")
 randomButton.grid(row=0, column=1, padx=5, pady=5)
 # Insert selected value
-insertButton = Button(buttonWindow, text="Insert Value", command=lambda : insertIntoAll(int(insertSelect.get()), canvas1, canvas2, canvas3), bg="yellow", fg="black")
+insertButton = Button(buttonWindow, text="Insert Value", command=lambda : insertIntoAll(int(insertSelect.get()), canvas1, canvas2, canvas3), bg=nodeColor, fg="black")
 insertButton.grid(row=0, column=2, padx=5, pady=5)
 # Remove selected value
-removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg="purple", fg="white")
+removeButton = Button(buttonWindow, text="Remove Value", command=lambda : removeFromAll(int(removeSelect.get()), canvas1, canvas2, canvas3), bg=removeColor, fg="white")
 removeButton.grid(row=0, column=3, padx=5, pady=5)
 # Find selected value
 findButton = Button(buttonWindow, text="Find Value", command=lambda : findInAll(int(findSelect.get()), canvas1, canvas2, canvas3), bg="magenta", fg="white")
 findButton.grid(row=0, column=4, padx=5, pady=5)
 # Reset button
-sortButton = Button(buttonWindow, text="Clear Canvas", command=clearCanvas, bg="red", fg="white")
+sortButton = Button(buttonWindow, text="Clear Canvas", command=clearCanvas, bg="tan4", fg="white")
 sortButton.grid(row=0, column=5, padx=5, pady=5)
 # Options Window
 optionWindow = Frame(buttonOptionWindow, width=canvasWidth, height=100, bg="white")
@@ -757,13 +759,13 @@ maximumLabel.grid(row=0, column=5, padx=5, pady=5)
 maximumSelect = Spinbox(optionWindow, from_=1, to=99999, increment=100, textvariable=maximumVar, width=spinboxWidth)
 maximumSelect.grid(row=1, column=5, padx=5, pady=5)
 # Insert label
-insertLabel = Label(optionWindow, text="Insert", bg="yellow", fg="black")
+insertLabel = Label(optionWindow, text="Insert", bg=insertColor, fg="white")
 insertLabel.grid(row=0, column=6, padx=5, pady=5)
 # Insert select
 insertSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=insertVar, width=spinboxWidth)
 insertSelect.grid(row=1, column=6, padx=5, pady=5)
 # Remove label
-removeLabel = Label(optionWindow, text="Remove", bg="purple", fg="white")
+removeLabel = Label(optionWindow, text="Remove", bg=removeColor, fg="white")
 removeLabel.grid(row=0, column=7, padx=5, pady=5)
 # Remove select
 removeSelect = Spinbox(optionWindow, from_=minimumVar.get(), to=maximumVar.get(), increment=1, textvariable=removeVar, width=spinboxWidth)
