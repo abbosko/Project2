@@ -92,6 +92,7 @@ class SkipList:
             return
         for i in range(len(nodeToRemove.next)):
             path[i].next[i] = nodeToRemove.next[i]
+        # adjust length of head's next pointers
         while(None in self.head.next):
             self.head.next.remove(None)
 

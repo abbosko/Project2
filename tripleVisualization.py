@@ -313,6 +313,7 @@ class SkipList:
                     nodeMatrix[rowIndex][bottomIndex] = (node, currX, currY)
 
 # Fib Heap code
+
 class FibNode:
     def __init__(self, key):
         self.key = key
@@ -539,6 +540,21 @@ class FibonacciHeap:
     
     def drawFibHeap(self, canvas: Canvas):
         pass
+
+# Red Black Tree Code
+
+class RBTreeNode:
+    def __init__(self, key):
+        self.key = key
+        self.parent = None
+        self.left = None
+        self.right = None
+        self.color = 1       # 1=red , 0=black
+
+class RBTree:
+    def __init__(self):
+        self.root = RBTreeNode(0)
+        self.root.color = 0
 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
