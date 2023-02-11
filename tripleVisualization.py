@@ -786,6 +786,9 @@ class RBTree:
         getLevelsHelper(self.root, 0)
 
         return listOfLevels
+    
+    def drawRBTree(self, canvas: Canvas):
+        canvas.delete("all")
 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
