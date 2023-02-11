@@ -553,8 +553,11 @@ class RBTreeNode:
 # red black tree class
 class RBTree:
     def __init__(self):
-        self.root = RBTreeNode(0)
-        self.root.color = 0
+        self.NULL = RBTreeNode(0)
+        self.NULL.color = 0
+        self.NULL.right = None
+        self.NULL.left = None
+        self.root = self.NULL
 
     def leftRotate(self, a):
         b = a.right             #b becomes right child of a
@@ -779,7 +782,7 @@ class RBTree:
                 list = []
                 listOfLevels.append(list)
             # Append node to the level's list
-            listOfLevels[l].append(node)
+            listOfLevels[l].append(node.key)
             getLevelsHelper(node.left, l+1)
             getLevelsHelper(node.right, l+1)
 
@@ -790,6 +793,24 @@ class RBTree:
     def drawRBTree(self, canvas: Canvas):
         canvas.delete("all")
 
+        # Get Y offset
+        allLevels = self.getLevels()
+        numDegrees = len(allLevels)
+        maxDegree = numDegrees - 1
+
+        print(allLevels)
+
+        # For each level
+        for degreeIndex, level in enumerate(allLevels):
+            # For each value in level
+            currDegree = degreeIndex
+            currY = (((getCanvasY(canvas) + (padY * 2)) / (numDegrees + 1)) * (currDegree + 1)) - padY
+            for levelIndex, key in enumerate(allLevels[0]):
+                currDegree = degreeIndex
+                currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
+                radius = calculateRadius(key)
+                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="red")
+                
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
     if(10 + (len(str(key))) * 1.2 > 12.4):
@@ -801,10 +822,11 @@ def calculateRadius(key):
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     # global fibHeap
-    # global redBlackTree
+    global redBlackTree
     
     # reset data structures
     skipList = SkipList()
+    redBlackTree = RBTree()
 
     for index, num in enumerate(data):
         if(index != 0):
@@ -813,6 +835,8 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
             skipList.animateFind(num, canvas1, insertColor, False)   # redraw with no delays
         else:
             skipList.insert(num)
+        redBlackTree.insert(num)
+        redBlackTree.drawRBTree(canvas3)
         root.after(delaySelect.get())   # delay after every data structure is updated
         root.update()
     skipList.drawSkipList(canvas1)
