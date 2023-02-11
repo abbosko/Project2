@@ -799,10 +799,11 @@ def calculateRadius(key):
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     # global fibHeap
-    # global rbt
+    # global redBlackTree
     
     # reset data structures
     skipList = SkipList()
+    redBlackTree = RBTree()
 
     for index, num in enumerate(data):
         if(index != 0):
@@ -920,7 +921,7 @@ padY = 50
 spinboxWidth = 5
 # Create all data structures
 skipList = SkipList()  # create Skip List
-# redBlackTree = RedBlackTree() # create RBT
+redBlackTree = RBTree() # create RBT
 fibHeap = FibonacciHeap()   # create Fib Heap
 linkedList3 = LinkedList()  # DEBUG
 
