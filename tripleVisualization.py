@@ -160,24 +160,34 @@ class SkipList:
 
     # draws differently colored nodes in the path of the find operation
     def animateFind(self, key, canvas: Canvas):
+        canvas.delete("all")
+        self.drawSkipList(canvas)
         global padX
         global padY
-        path = self.getFullPath(key)  # TODO update when written
-        print(path) # DEBUG
+        path = self.getFullPath(key)
         allRows = self.getRows()
-        # inner function to determine the X value of the given node
+        # inner functions to determine the X and Y values of the given node
         def findX(node):
             index = allRows[0].index(node)
             return (((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) * (index + 2)) + padX
         def findY(allRows, rowIndex):
             return (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (rowIndex + 1)) + padY
-        # TODO use the new function self.getFullPath(key)
-        # for element in path:
-        #     currX = findX(allRows[element[0]][element[1]])
-        #     currY = findY(allRows, element[1])  # may be [0]
-        #     radius = calculateRadius(element.key)
-        #     canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
-        #     canvas.create_text(currX, currY, text=str(element.key), fill="black")
+        for element in path:
+            currX = findX(allRows[element[0]][element[1]])
+            if(element[1] == -1):   # head node
+                leftX = ((getCanvasX(canvas) - 2 * padX) / (len(allRows[0]) + 2)) + padX
+                currY = (((getCanvasY(canvas) - 2 * padY) / (len(allRows) + 1)) * (len(allRows) - element[0])) + padY
+                radius = 10 + (len(str("H")) + 1) * 1.2   # determine radius of node based on length of the string "H"
+                canvas.create_oval(leftX-radius, currY-radius, leftX+radius, currY+radius, fill="blue")
+                canvas.create_text(leftX, currY, text="H", fill="black")
+            else:                   # not head node
+                if((len(allRows) - element[0] - 1) < 0):
+                    currY = findY(allRows, len(allRows) - element[0])
+                else:
+                    currY = findY(allRows, len(allRows) - element[0] - 1)
+                radius = calculateRadius(allRows[element[0]][element[1]].key)
+                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="blue")
+                canvas.create_text(currX, currY, text=str(allRows[element[0]][element[1]].key), fill="black")
 
     # inserts a new node with the given key
     def insert(self, key):
@@ -222,29 +232,31 @@ class SkipList:
             rows.append(self.getRow(i))
         return rows
 
-    # # return tuples of indicies
-    # def getFullPath(self, key):
-    #     # initializes array to hold the nodes where we "shift down" a level
-    #     allRows = self.getRows()
-    #     fullPath = []
-    #     # searches down the list for the key, but stops when it hits the bottom
-    #     ptr = self.head
-    #     while ptr.key != key:
-    #         for index, nextNode in enumerate(reversed(ptr.next)):
-    #             if(nextNode.key < key):
-    #                 ptr = nextNode
-    #                 fullPath.append(ptr)    # should be tuple of indicies TODO
-    #                 break
-    #         if(ptr.key != key):
-    #             break
-    #     if(ptr.key == key):
-    #         fullPath.append(ptr)    # should be tuple of indicies TODO
-        
-    #     for element in fullPath:
-    #         print(element.key)    # DEBUG
-
-    #     # return the FULL path taken down the list
-    #     return fullPath
+    def getFullPath(self, key):
+        # initializes array to hold the nodes where we "shift down" a level
+        rows = self.getRows()
+        fullPath = []
+        # searches down the list for the key, but stops when it hits the bottom
+        ptr = self.head
+        for i in range(len(self.head.next)-1, -1, -1):
+            while ptr.next[i] != None and ptr.next[i].key < key:
+                # -1 indicates Head
+                if ptr.key == None:
+                    column = -1
+                else:
+                    column = rows[i].index(ptr)
+                fullPath.append((i, column))
+                ptr = ptr.next[i]
+            # -1 indicates Head
+            if ptr.key == None:
+                column = -1
+            else:
+                column = rows[i].index(ptr)
+            fullPath.append((i, column))
+            
+        # return the FULL path taken down the list
+        # tuple of (row, column)
+        return fullPath
     
     def drawSkipList(self, canvas: Canvas):
         canvas.delete("all")
