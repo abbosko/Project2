@@ -109,3 +109,26 @@ class SkipList:
         for i in range(len(self.head.next)):
             rows.append(self.getRow(i))
         return rows
+
+    def getFullPath(self, key):
+        # initializes array to hold the nodes where we "shift down" a level
+        rows = self.getRows()
+        fullPath = []
+        # searches down the list for the key, but stops when it hits the bottom
+        ptr = self.head
+        for i in range(len(self.head.next)-1, -1, -1):
+            while ptr.next[i] != None and ptr.next[i].key < key:
+                if ptr.key == None:
+                    column = 0
+                else:
+                    column = rows[i].index(ptr.key)
+                fullPath.append((i, column))
+                ptr = ptr.next[i]
+            if ptr.key == None:
+                column = 0
+            else:
+                column = rows[i].index(ptr.key)
+            fullPath.append((i, column))
+            
+        # return the FULL path taken down the list
+        return fullPath
