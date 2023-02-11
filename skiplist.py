@@ -71,7 +71,9 @@ class SkipList:
     # inserts a new node with the given key
     def insert(self, key):
         # creates a new node with the given key
-        newNode = SkipNode(key, pickHeight())
+        height = pickHeight()
+        print("inserting " + str(key) + " at height " + str(height))
+        newNode = SkipNode(key, height)
         # adds another level of pointer to the head, if necessary
         while len(self.head.next) < len(newNode.next):
             self.head.next.append(None)
@@ -118,17 +120,32 @@ class SkipList:
         ptr = self.head
         for i in range(len(self.head.next)-1, -1, -1):
             while ptr.next[i] != None and ptr.next[i].key < key:
+                # -1 indicates Head
                 if ptr.key == None:
-                    column = 0
+                    column = -1
                 else:
-                    column = rows[i].index(ptr.key)
+                    column = rows[i].index(ptr)
                 fullPath.append((i, column))
+                print("adding " + str(i) + ", " + str(column) + " to list")
                 ptr = ptr.next[i]
+            # -1 indicates Head
             if ptr.key == None:
-                column = 0
+                column = -1
             else:
-                column = rows[i].index(ptr.key)
+                column = rows[i].index(ptr)
             fullPath.append((i, column))
+            print("adding " + str(i) + ", " + str(column) + " to list")
             
         # return the FULL path taken down the list
+        # tuple of (row, column)
         return fullPath
+
+def main():
+    sl = SkipList()
+    for i in range (1, 50):
+        sl.insert(i)
+    fullPath = sl.getFullPath(40)
+    print(fullPath)
+
+if __name__ == "__main__":
+    main()
