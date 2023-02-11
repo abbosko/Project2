@@ -782,7 +782,7 @@ class RBTree:
                 list = []
                 listOfLevels.append(list)
             # Append node to the level's list
-            listOfLevels[l].append(node.key)
+            listOfLevels[l].append(node)
             getLevelsHelper(node.left, l+1)
             getLevelsHelper(node.right, l+1)
 
@@ -795,8 +795,6 @@ class RBTree:
 
         # Get Y offset
         allLevels = self.getLevels()
-        numDegrees = len(allLevels)
-        maxDegree = numDegrees - 1
 
         print(allLevels)
 
@@ -804,13 +802,14 @@ class RBTree:
         for degreeIndex, level in enumerate(allLevels):
             # For each value in level
             currDegree = degreeIndex
-            currY = (((getCanvasY(canvas) + (padY * 2)) / (numDegrees + 1)) * (currDegree + 1)) - padY
-            for levelIndex, key in enumerate(allLevels[degreeIndex]):
+            currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
+            for levelIndex, node in enumerate(allLevels[degreeIndex]):
                 currDegree = degreeIndex
                 currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
-                radius = calculateRadius(key)
-                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill="red")
-                canvas.create_text(currX, currY, text=key, fill="black")
+                radius = calculateRadius(node.key)
+                color = 'red' if node.color else 'black'
+                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
+                canvas.create_text(currX, currY, text=node.key, fill="white")
                 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
