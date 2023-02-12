@@ -325,13 +325,14 @@ class FibNode:
         # currY = (canvas.winfo_height()- padY) / 2
         canvas.create_oval(X-radius, Y-radius, X+radius, Y+radius, fill=color)
         canvas.create_text(X, Y, text=str(self.key), fill="black")
-        
 
+        return radius
 class FibonacciHeap:
     def __init__(self):
         self.min = None
         self.nodeCount = 0
         self.finder = None
+        self.findList = []
     
     def addToRootList(self, node):
         if self.min is None:
@@ -464,7 +465,7 @@ class FibonacciHeap:
             if i is not None:
                 if self.min is None or i.key < self.min.key:
                     self.min = i
-    
+     
     def cut(self, node, parent):
         # no longer a child so remove from child list 
         self.removeFromChildList(parent, node)
@@ -500,6 +501,7 @@ class FibonacciHeap:
 
     def find(self, start,  val):
         ptr = start
+        self.findList.append(ptr)
         ptr.color = 'Y'
         if(ptr.key == val):
             ptr.color = 'N'
@@ -513,9 +515,11 @@ class FibonacciHeap:
         ptr.color = 'N'
 
     def delete(self, val):
+        self.findList.clear()
         if(self.min == None):
             print("Error: Heap Empty")
         elif(self.min.key == val):
+            self.findList.append(self.min)
             self.extract_min()
         else:
             self.finder = None
@@ -544,20 +548,68 @@ class FibonacciHeap:
             print("Node count", self.nodeCount)
     
     def drawFibHeap(self, canvas): 
-        # self.populateRootList()
-        # canvas.delete("all")
-        # if(self.rootList == None or len(self.rootList) < 1):   # Do not draw anything if the LinkedList is empty
+        canvas.delete("all")
+        rootList = [node for node in self.iterate(self.min)]
+        height = max(node.degree for node in rootList)
+
+        rootOffset = ((canvasWidth - 100))/ (len(rootList) + height)
+        yinc = (canvasHeight - 100) / (height + 1)
+    
+        self.drawFib(self.min, canvas, rootOffset, 50, rootOffset, yinc, rootList)
+        '''
         node = self.min
-        node.drawFibNode(canvas, 50, 50,  'yellow')
+        rootList = [node for node in self.iterate(self.min)]
+        xinc = ((canvasWidth - 100))/ len(rootList)
+        startx = 50 + xinc
+        height = max(node.degree for node in rootList)
+        yinc = (canvasHeight - 100) / (height + 1)
+        starty = (canvasHeight -50) - yinc
+        # need tre eheigh fxn 
+        node.drawFibNode(canvas, startx, starty,  'yellow')
         if(node.child != None):
-            self.drawFib(node.child, canvas, 70,70, node)
+            self.drawEdge(canvas, startx, starty - (node.child.degree *yinc) , node.right, node)
+            self.drawFib(node.child, canvas, startx , starty - yinc, node, rootList, yinc)
         elif (node.right):
-            self.drawFib(node.right, canvas, 70,70, node)
+            self.drawEdge(canvas, startx + xinc, starty, node.right, node)
+            self.drawFib(node.right, canvas, startx, starty , node, xinc, yinc)
         else: 
             return
+            '''
 
-    def drawFib(self, node, canvas,  x, y, begin):
+    def drawFib(self, node, canvas,  x, y, rootOffset, yinc, rootList):
+        
+        if(node == self.min): color = 'cyan'
+        else: color = 'yellow'
 
+        if(node in self.findList): color = 'violet'
+        print(self.findList)
+
+        # if(x < 50): x = 50
+       
+        radius = node.drawFibNode(canvas, x,y, color)
+        root.after(delaySelect.get())
+        root.update()
+
+        totalSpace = rootOffset/2
+        offset = -totalSpace  * (node.degree -1) / 2
+
+        child = node.child
+        for childTree in range(node.degree):
+            canvas.create_line(x, y + radius, x + offset, y + yinc)
+            self.drawFib(child, canvas, x + offset, y + yinc, rootOffset, yinc, rootList)
+            
+             # offset from siblings
+            if(child != node.child.left):
+                offset = offset * (childTree ) 
+            
+            child = child.right
+        
+        #rootList
+        if node in rootList and node.right != self.min:
+            canvas.create_line(x+ radius, y, x + rootOffset - radius, y, arrow=LAST)
+            canvas.create_line(x+ radius, y, x + rootOffset - radius, y, arrow=FIRST)
+            self.drawFib(node.right, canvas,  x + rootOffset, y, rootOffset, yinc, rootList)
+        '''
         ptr = node
         ptr.k = 'Y'
         color = 'yellow'
@@ -569,14 +621,33 @@ class FibonacciHeap:
         else:
             if( ptr == self.min): color = 'cyan'
             ptr.drawFibNode(canvas, x, y,  color)
-            if(ptr.child != None):
-                y+=20
-                self.drawFib(node.child,canvas, x, y, begin)
+
+             if(ptr.child != None):
+                self.drawFib(node.child,canvas, x, canvasHeight - (ptryinc, begin, xinc, yinc)
             if (ptr.right.k != 'Y'):
-                x+=20
-                self.drawFib(node.right, canvas, x, y,  begin);
+                self.drawFib(node.right, canvas, x + xinc, y,  begin, xinc, yinc);
         ptr.k = 'N'
+        
        
+    def drawEdge(self, canvas,  x, y, node, begin):
+
+        ptr = node
+        ptr.k = 'Y'
+    
+        ptr.h = 3
+
+        if(ptr == begin):
+            ptr.k = 'N'
+            return 
+
+        else:
+            canvas.create_line(x, y, x+(ptr.h*30)+15, y+50)
+            if(ptr.child != None):
+                self.drawEdge(canvas, x, y - 10, node.child,begin)
+            if (ptr.right.k != 'Y'):
+                self.drawEdge(canvas, x + 20, y, node.right,  begin);
+        ptr.k = 'N'
+        '''
 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
@@ -594,16 +665,16 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 
     for index, num in enumerate(data):
         if(index != 0):
-            skipList.animateFind(num, canvas1, True)    # draw with delays
-            skipList.insert(num)
+            # skipList.animateFind(num, canvas1, True)    # draw with delays
+            # skipList.insert(num)
             fibHeap.insert(num)
-            skipList.animateFind(num, canvas1, False)   # redraw with no delays
+            # skipList.animateFind(num, canvas1, False)   # redraw with no delays
         else:
-            skipList.insert(num)
+            # skipList.insert(num)
             fibHeap.insert(num)
         root.after(delaySelect.get())   # delay after every data structure is updated
         root.update()
-    skipList.drawSkipList(canvas1)
+    # skipList.drawSkipList(canvas1)
     fibHeap.drawFibHeap(canvas2)
     # fibHeap
     # rbt
@@ -620,9 +691,9 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # check in fib heap
     # check in rbt
 
-    skipList.animateFind(num, canvas1, True)    # draw with delays
-    skipList.insert(num)
-    skipList.animateFind(num, canvas1, False)   # redraw with no delays
+    # skipList.animateFind(num, canvas1, True)    # draw with delays
+    # skipList.insert(num)
+    # skipList.animateFind(num, canvas1, False)   # redraw with no delays
     root.after(delaySelect.get())
     root.update()
 
@@ -646,9 +717,11 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # check in fib heap
     # check in rbt
  
-    skipList.animateFind(num, canvas1, True)    # draw with delays
-    skipList.insert(num)
-    fibHeap.delete(num)
+    # skipList.animateFind(num, canvas1, True)    # draw with delays
+    # skipList.insert(num)
+    
+    fibHeap.delete(int(num))
+    
     fibHeap.drawFibHeap(canvas2)
     root.update()
     skipList.animateFind(num, canvas1, False)   # redraw with no delays
