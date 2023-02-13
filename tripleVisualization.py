@@ -245,12 +245,10 @@ class FibNode:
         self.mark = False    # flag for find 
         self.k = 'N'
     
-    def drawFibNode(self, canvas: Canvas, X, Y, color):
+    def drawFibNode(self, canvas: Canvas, X, Y, color, textColor):
         radius = calculateRadius(self.key)
-        # currX = index * ((canvas.winfo_width() - padX) / len(rootList)) + padX
-        # currY = (canvas.winfo_height()- padY) / 2
         canvas.create_oval(X-radius, Y-radius, X+radius, Y+radius, fill=color)
-        canvas.create_text(X, Y, text=str(self.key), fill="black")
+        canvas.create_text(X, Y, text=str(self.key), fill=textColor)
 
 # fib heap class
 class FibonacciHeap:
@@ -366,7 +364,7 @@ class FibonacciHeap:
 
     def consolidate(self):
         aux = [None] * int(math.log(self.nodeCount) * 2)
-        #get root list
+        # get root list
         array = [node for node in self.iterate(self.min)]
         while array != []:
             first = array[0]
@@ -458,21 +456,31 @@ class FibonacciHeap:
         canvas.delete("all")
         rootList = [node for node in self.iterate(self.min)]
         height = max(node.degree for node in rootList)
-        rootOffset = ((canvasWidth - 100))/ (len(rootList) + height)
+        rootOffset = ((canvasWidth - 100)) / (len(rootList) + height)
         yInc = (canvasHeight - 100) / (height + 1)
         self.drawFib(self.min, canvas, rootOffset, 50, rootOffset, yInc, rootList)
 
-    def drawFib(self, node, canvas,  x, y, rootOffset, yInc, rootList):
+    def drawFib(self, node, canvas, x, y, rootOffset, yInc, rootList):
         if(node == self.min):
             color = 'cyan'
+            textColor = "black"
+            node.drawFibNode(canvas, x, y, color, textColor)
+            root.update()
         else:
-            color = 'yellow'
+            color = nodeColor
+            textColor = "black"
+            node.drawFibNode(canvas, x, y, color, textColor)
+            root.update()
         if(node in self.findList):
-            color = 'violet'
-        node.drawFibNode(canvas, x,y, color)
+            color = findColor
+            textColor = "white"
+            node.drawFibNode(canvas, x, y, color, textColor)
+            root.after(delaySelect.get())   # delay
+            root.update()
+        # node.drawFibNode(canvas, x, y, color, textColor)
         radius = calculateRadius(node.key)
         totalSpace = rootOffset/2
-        offset = -totalSpace  * (node.degree -1) / 2
+        offset = -totalSpace * (node.degree - 1) / 2
         child = node.child
         for childTree in range(node.degree):
             canvas.create_line(x, y + radius, x + offset, y + yInc)
@@ -487,9 +495,10 @@ class FibonacciHeap:
         if node in rootList and node.right != self.min:
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
-            self.drawFib(node.right, canvas,  x + rootOffset, y, rootOffset, yInc, rootList)
+            # root.update()
+            self.drawFib(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
 
-    def fibFind(self, canvas, val):
+    def animateFind(self, canvas, val):
         canvas.delete("all")
         self.drawFibHeap(canvas)
         self.findList.clear()
@@ -505,7 +514,7 @@ class RBTreeNode:
         self.parent = None
         self.left = None
         self.right = None
-        self.color = 1       # 1=red , 0=black
+        self.color = 1       # 1=red, 0=black
 
 # red black tree class
 class RBTree:
@@ -517,11 +526,11 @@ class RBTree:
         self.root = self.NULL
 
     def leftRotate(self, a):
-        b = a.right             #b becomes right child of a
-        a.right = b.left        #right child of a becomes left child of b
+        b = a.right             # b becomes right child of a
+        a.right = b.left        # right child of a becomes left child of b
         if b.left != self.NULL:
             b.left.parent = a
-        b.parent = a.parent     #parent of b changes to become parent of a
+        b.parent = a.parent     # parent of b changes to become parent of a
         if a.parent == None:
             self.root = b
         elif a == a.parent.left:
@@ -532,8 +541,8 @@ class RBTree:
         a.parent = b
 
     def rightRotate(self, a):
-        b = a.left              #b becomes left child of a
-        a.left = b.right        #left child of a becomes right child of b
+        b = a.left              # b becomes left child of a
+        a.left = b.right        # left child of a becomes right child of b
         if b.right != self.NULL:
             b.right.parent = a
         b.parent = a.parent
@@ -561,23 +570,23 @@ class RBTree:
 
     def removeNodeHelper(self, node, key):
         c = self.NULL
-        while node != self.NULL: #find node that has particular keyue in it
+        while node != self.NULL: # find node that has particular keyue in it
             if node.key == key:
-                c = node         #store in c
+                c = node         # store in c
             if node.key <= key:
                 node = node.right
             else:
                 node = node.left
-        if c == self.NULL:       #key not found in the tree
+        if c == self.NULL:       # key not found in the tree
             return
  
         b = c
-        b_original_color = b.color          #store color
-        if c.left == self.NULL:             #if left child is NULL
-            a = c.right                     #right child of c to a
-            self.rbTransplant(c, c.right)   #transplant node is deleted
-        elif (c.right == self.NULL):        #else if right child of c is null
-            a = c.left                      #left child of c to a
+        b_original_color = b.color          # store color
+        if c.left == self.NULL:             # if left child is NULL
+            a = c.right                     # right child of c to a
+            self.rbTransplant(c, c.right)   # transplant node is deleted
+        elif (c.right == self.NULL):        # else if right child of c is null
+            a = c.left                      # left child of c to a
             self.rbTransplant(c, c.left)
         else:
             b = self.minimum(c.right)
@@ -654,12 +663,12 @@ class RBTree:
         node.key = key
         node.left = self.NULL
         node.right = self.NULL
-        node.color = 1 #red
+        node.color = 1 # red
  
-        b = None #parent
-        a = self.root #root
+        b = None # parent
+        a = self.root # root
  
-        while a != self.NULL: #check if tree is empty
+        while a != self.NULL: # check if tree is empty
             b = a 
             if node.key < a.key:
                 a = a.left
@@ -675,7 +684,7 @@ class RBTree:
             b.right = node
  
         if node.parent == None:
-            node.color = 0 #black
+            node.color = 0 # black
             return
  
         if node.parent.parent == None:
@@ -809,15 +818,16 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # check in fib heap
     # check in rbt
 
+    # skip list
     skipList.animateFind(num, canvas1, insertColor, True)    # draw with delays
     skipList.insert(num)
     skipList.animateFind(num, canvas1, insertColor, False)   # redraw with no delays
     fibHeap.insert(num)
+    # fib heap
     fibHeap.drawFibHeap(canvas2)
     root.after(delaySelect.get())
     root.update()
 
-    # fibHeap
     # rbt
 
     root.after(delaySelect.get())   # delay after every data structure is updated
@@ -843,13 +853,15 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 # Animates the search for a specified data point in each of the three data structures
 def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global fibHeap
+    global fibHeap
     # global redBlackTree
 
     skipList.animateFind(num, canvas1, findColor, True)
     root.update()
-    
-    # fibHeap
+
+    fibHeap.animateFind(canvas2, num)
+    root.update()
+
     # RBT
 
     root.after(delaySelect.get())   # delay after every data structure is updated
