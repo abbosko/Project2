@@ -582,17 +582,17 @@ class FibonacciHeap:
         else: color = 'yellow'
 
         if(node in self.findList): color = 'violet'
-        print(self.findList)
+      
 
         # if(x < 50): x = 50
        
         radius = node.drawFibNode(canvas, x,y, color)
-        root.after(delaySelect.get())
-        root.update()
+       
 
         totalSpace = rootOffset/2
         offset = -totalSpace  * (node.degree -1) / 2
 
+       
         child = node.child
         for childTree in range(node.degree):
             canvas.create_line(x, y + radius, x + offset, y + yinc)
@@ -600,7 +600,12 @@ class FibonacciHeap:
             
              # offset from siblings
             if(child != node.child.left):
-                offset = offset * (childTree ) 
+                offset = offset * (childTree)
+                
+            
+            if(child.right == node.child.left):
+                offset = offset * (childTree) + 50
+               
             
             child = child.right
         
@@ -648,6 +653,13 @@ class FibonacciHeap:
                 self.drawEdge(canvas, x + 20, y, node.right,  begin);
         ptr.k = 'N'
         '''
+    def fibFind(self, canvas, val):
+        canvas.delete("all")
+        self.drawFibHeap(canvas)
+        self.findList.clear()
+        
+        self.find(self.min, val)
+        self.drawFibHeap(canvas)
 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
@@ -699,6 +711,7 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 
     # fibHeap
 
+    fibHeap.findList.clear()
     fibHeap.insert(num)
     fibHeap.drawFibHeap(canvas2)
     # rbt
@@ -719,9 +732,10 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
  
     # skipList.animateFind(num, canvas1, True)    # draw with delays
     # skipList.insert(num)
-    
+    fibHeap.findList.clear()
     fibHeap.delete(int(num))
-    
+    fibHeap.findList.clear()
+
     fibHeap.drawFibHeap(canvas2)
     root.update()
     skipList.animateFind(num, canvas1, False)   # redraw with no delays
@@ -739,11 +753,12 @@ def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # dataStructure.animateFind(num)
     # root.update()
 
-    skipList.animateFind(num, canvas1)
+    # skipList.animateFind(num, canvas1)
     root.update()
-
-    # fibHeap.animateFind(num, canvas2)
-    # root.update()
+    
+    fibHeap.fibFind(canvas2, num)
+    fibHeap.findList.clear()
+    root.update()
     
     # RBT
 
