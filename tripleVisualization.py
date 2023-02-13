@@ -1,8 +1,8 @@
 # CS 470 Team 2, February 2023
-# Skip List - Sam Gaines and Scott Ratchford
-# Red-Black Tree -
-# Fibbonaci Heap - 
-# Animations - Scott Ratchford
+# Skip List - Sam Gaines, Scott Ratchford
+# Red-Black Tree - Summer Davis, Kevin Lee
+# Fibbonaci Heap - Abigail Bosko, Audrey Kim
+# Animations - All teammates
 
 from tkinter import *
 import random
@@ -486,7 +486,7 @@ class FibonacciHeap:
         child = node.child
         for childTree in range(node.degree):
             canvas.create_line(x, y + radius, x + offset, y + yInc)
-            self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
+            self.drawFib(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
             # offset from siblings
             if(child != node.child.left):
                 offset = offset * (childTree)
@@ -497,7 +497,7 @@ class FibonacciHeap:
         if node in rootList and node.right != self.min:
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
-            self.highlightFind(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
+            self.drawFib(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
 
     def highlightFind(self, node, canvas, x, y, rootOffset, yInc, rootList):
         if(node in self.findList):
@@ -512,7 +512,7 @@ class FibonacciHeap:
         child = node.child
         for childTree in range(node.degree):
             canvas.create_line(x, y + radius, x + offset, y + yInc)
-            self.drawFib(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
+            self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
             # offset from siblings
             if(child != node.child.left):
                 offset = offset * (childTree)
@@ -523,7 +523,7 @@ class FibonacciHeap:
         if node in rootList and node.right != self.min:
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
-            self.drawFib(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
+            self.highlightFind(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
 
 # Red Black Tree Code
 
@@ -619,7 +619,6 @@ class RBTree:
                 self.rbTransplant(b, b.right)
                 b.right = c.right
                 b.right.parent = b
- 
             self.rbTransplant(c, b)
             b.left = c.left
             b.left.parent = b
@@ -636,7 +635,6 @@ class RBTree:
                     a.parent.color = 1
                     self.leftRotate(a.parent)
                     s = a.parent.right
- 
                 if s.left.color == 0 and s.right.color == 0:
                     s.color = 1
                     a = a.parent
@@ -646,7 +644,6 @@ class RBTree:
                         s.color = 1
                         self.rightRotate(s)
                         s = a.parent.right
- 
                     s.color = a.parent.color
                     a.parent.color = 0
                     s.right.color = 0
@@ -685,17 +682,14 @@ class RBTree:
         node.left = self.NULL
         node.right = self.NULL
         node.color = 1 # red
- 
         b = None # parent
         a = self.root # root
- 
         while a != self.NULL: # check if tree is empty
             b = a 
             if node.key < a.key:
                 a = a.left
             else:
                 a = a.right
- 
         node.parent = b
         if b == None:
             self.root = node
@@ -703,14 +697,11 @@ class RBTree:
             b.left = node
         else:
             b.right = node
- 
         if node.parent == None:
             node.color = 0 # black
             return
- 
         if node.parent.parent == None:
             return
- 
         self.balanceInsertion(node)
 
     def balanceInsertion(self, k):
@@ -731,7 +722,6 @@ class RBTree:
                     self.leftRotate(k.parent.parent)
             else:
                 u = k.parent.parent.right
- 
                 if u.color == 1:
                     u.color = 0
                     k.parent.color = 0
@@ -747,6 +737,7 @@ class RBTree:
             if k == self.root:
                 break
         self.root.color = 0
+
     # Search the tree
     def searchTree(self, node, key):
         if node == self.NULL or key == node.key:
@@ -754,8 +745,6 @@ class RBTree:
         if key < node.key:
             return self.searchTree(node.left, key)
         return self.searchTree(node.right, key)
-
-    # Misc.
 
     def getLevels(self):
         # Initialize list to return
@@ -779,7 +768,6 @@ class RBTree:
     def drawRBTree(self, canvas: Canvas, findList=[], findColor = 'magenta'):
         canvas.delete("all")
         allLevels = self.getLevels()
-
         # Draw the lines first
         # For each level
         for degreeIndex, level in enumerate(allLevels):
@@ -791,13 +779,11 @@ class RBTree:
                 currDegree = degreeIndex
                 currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
                 radius = calculateRadius(node.key)
-                
                 # Getting parent's X and Y position and drawing line to it
                 if degreeIndex != 0:
                     parentY = currY - ((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1))
                     parentX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree-1) + 1)) * (levelIndex//2 + 1))
                     canvas.create_line(currX, currY, parentX, parentY, fill='black')
-        
         # Draw the nodes second, so they are drawn over lines
         for degreeIndex, level in enumerate(allLevels):
             # For each value in level
@@ -812,23 +798,21 @@ class RBTree:
                 canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
                 canvas.create_text(currX, currY, text=node.key, fill="white")
             
-    def animateFindRBT(self, num, canvas: Canvas, findColor):
+    def animateFind(self, num, canvas: Canvas, findColor):
         nodesTraversed = []
         current = self.root
-
         while (current != None and current != self.NULL):
             nodesTraversed.append(current)
-
             if current.key == num:
                 break
             elif current.key > num:
                 current = current.left
             else:
                 current = current.right
-        
         self.drawRBTree(canvas, nodesTraversed, findColor)
 
-# for RBT
+# Functions for RBT
+
 # Same idea as calculation of index of children from binary heap represented as an array
 def findNodeIndex(tree, node):
     if node.parent == None or node.parent == tree.NULL:
@@ -896,6 +880,8 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     # do not insert duplicates
     if(skipList.find(num) != None):
         return
+    # TODO duplicate check for fib heap
+    # TODO duplicate check for rbt
 
     # skip list
     skipList.animateFind(num, canvas1, insertColor, True)    # draw with delays
@@ -943,7 +929,7 @@ def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 
     skipList.animateFind(num, canvas1, findColor, True)
     fibHeap.animateFind(canvas2, num)
-    redBlackTree.animateFindRBT(num, canvas3, findColor)
+    redBlackTree.animateFind(num, canvas3, findColor)
     # delay after every data structure is updated
     root.after(delaySelect.get())
     root.update()
