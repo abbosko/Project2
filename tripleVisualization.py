@@ -792,11 +792,7 @@ class RBTree:
     
     def drawRBTree(self, canvas: Canvas):
         canvas.delete("all")
-
-        # Get Y offset
         allLevels = self.getLevels()
-
-        print(allLevels)
 
         # For each level
         for degreeIndex, level in enumerate(allLevels):
@@ -810,6 +806,11 @@ class RBTree:
                 color = 'red' if node.color else 'black'
                 canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
                 canvas.create_text(currX, currY, text=node.key, fill="white")
+
+                # Getting parent's X and Y position and drawing line to it
+                parentY = currY - ((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1))
+                parentX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree-1) + 1)) * (levelIndex//2 + 1))
+                canvas.create_line(currX, currY, parentX, parentY, fill='black')
                 
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
