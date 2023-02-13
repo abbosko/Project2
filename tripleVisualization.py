@@ -544,7 +544,7 @@ class RBTree:
         self.NULL.right = None
         self.NULL.left = None
         self.root = self.NULL
-# Preorder
+    # Preorder
 
     def leftRotate(self, a):
         b = a.right             # b becomes right child of a
@@ -828,7 +828,7 @@ class RBTree:
         
         self.drawRBTree(canvas, nodesTraversed, findColor)
 
-
+# for RBT
 # Same idea as calculation of index of children from binary heap represented as an array
 def findNodeIndex(tree, node):
     if node.parent == None or node.parent == tree.NULL:
@@ -846,7 +846,6 @@ def findLevelIndex(tree, node):
 
     return nodeIndex - above
 
-
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
     if(10 + (len(str(key))) * 1.2 > 12.4):
@@ -862,8 +861,8 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     
     # reset data structures
     skipList = SkipList()
-    redBlackTree = RBTree()
     fibHeap = FibonacciHeap()
+    redBlackTree = RBTree()
 
     # insert all elements in list
     for index, num in enumerate(data):
@@ -880,13 +879,13 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
         # red black tree
         redBlackTree.insert(num)
         redBlackTree.drawRBTree(canvas3)
-
-        root.after(delaySelect.get())   # delay after every data structure is updated
+        # delay after every data structure is updated
+        root.after(delaySelect.get())
         root.update()
 
     skipList.drawSkipList(canvas1)
     fibHeap.drawFibHeap(canvas2)
-    # rbt
+    redBlackTree.drawRBTree(canvas3)
 
 # Animates the insertion of a specified data point into each of the three data structures
 def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
@@ -905,14 +904,11 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     fibHeap.insert(num)
     # fib heap
     fibHeap.drawFibHeap(canvas2)
+    # red black tree
     redBlackTree.insert(num)
     redBlackTree.drawRBTree(canvas3)
+    # delay after every data structure is updated
     root.after(delaySelect.get())
-    root.update()
-
-    # rbt
-
-    root.after(delaySelect.get())   # delay after every data structure is updated
     root.update()
 
 # Animates the removal of a specified data point from each of the three data structures
@@ -932,32 +928,25 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     fibHeap.delete(int(num))
     fibHeap.findList.clear()
     fibHeap.drawFibHeap(canvas2)
+    # red black tree
     redBlackTree.remove(num)
     redBlackTree.drawRBTree(canvas3)
-
+    # delay after every data structure is updated
     root.after(delaySelect.get())
-    root.update()
-    skipList.animateFind(num, canvas1, removeColor, False)    # draw with delays
-
-    root.after(delaySelect.get())   # delay after every data structure is updated
     root.update()
 
 # Animates the search for a specified data point in each of the three data structures
 def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global fibHeap
+    global fibHeap
     global redBlackTree
 
     skipList.animateFind(num, canvas1, findColor, True)
-    redBlackTree.animateFindRBT(num, canvas3, findColor)
-    root.update()
-
     fibHeap.animateFind(canvas2, num)
+    redBlackTree.animateFindRBT(num, canvas3, findColor)
+    # delay after every data structure is updated
+    root.after(delaySelect.get())
     root.update()
-
-    # RBT
-
-    root.after(delaySelect.get())   # delay after every data structure is updated
 
 def getCanvasX(canvas: Canvas):
     return canvas.winfo_width()
