@@ -551,6 +551,7 @@ class RBTree:
         self.NULL.right = None
         self.NULL.left = None
         self.root = self.NULL
+# Preorder
 
     def leftRotate(self, a):
         b = a.right             #b becomes right child of a
@@ -759,6 +760,13 @@ class RBTree:
             if k == self.root:
                 break
         self.root.color = 0
+    # Search the tree
+    def searchTree(self, node, key):
+        if node == self.NULL or key == node.key:
+            return node
+        if key < node.key:
+            return self.searchTree(node.left, key)
+        return self.searchTree(node.right, key)
 
     # Misc.
 
@@ -783,28 +791,77 @@ class RBTree:
 
         return listOfLevels
     
-    def drawRBTree(self, canvas: Canvas):
+    def drawRBTree(self, canvas: Canvas, findList=[], findColor = 'magenta'):
         canvas.delete("all")
         allLevels = self.getLevels()
 
+        # Draw the lines first
         # For each level
         for degreeIndex, level in enumerate(allLevels):
             # For each value in level
             currDegree = degreeIndex
             currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
-            for levelIndex, node in enumerate(allLevels[degreeIndex]):
+            for node in allLevels[degreeIndex]:
+                levelIndex = findLevelIndex(self, node)
                 currDegree = degreeIndex
                 currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
                 radius = calculateRadius(node.key)
-                color = 'red' if node.color else 'black'
+                
+                # Getting parent's X and Y position and drawing line to it
+                if degreeIndex != 0:
+                    parentY = currY - ((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1))
+                    parentX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree-1) + 1)) * (levelIndex//2 + 1))
+                    canvas.create_line(currX, currY, parentX, parentY, fill='black')
+        
+        # Draw the nodes second, so they are drawn over lines
+        for degreeIndex, level in enumerate(allLevels):
+            # For each value in level
+            currDegree = degreeIndex
+            currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
+            for node in allLevels[degreeIndex]:
+                levelIndex = findLevelIndex(self, node)
+                currDegree = degreeIndex
+                currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
+                radius = calculateRadius(node.key)
+                color = findColor if node in findList else 'red' if node.color else 'black'
                 canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
                 canvas.create_text(currX, currY, text=node.key, fill="white")
+            
+    def animateFindRBT(self, num, canvas: Canvas, findColor):
+        nodesTraversed = []
+        current = self.root
 
-                # Getting parent's X and Y position and drawing line to it
-                parentY = currY - ((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1))
-                parentX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree-1) + 1)) * (levelIndex//2 + 1))
-                canvas.create_line(currX, currY, parentX, parentY, fill='black')
-                
+        while (current != None and current != self.NULL):
+            nodesTraversed.append(current)
+
+            if current.key == num:
+                break
+            elif current.key > num:
+                current = current.left
+            else:
+                current = current.right
+        
+        self.drawRBTree(canvas, nodesTraversed, findColor)
+
+
+# Same idea as calculation of index of children from binary heap represented as an array
+def findNodeIndex(tree, node):
+    if node.parent == None or node.parent == tree.NULL:
+        return 0
+    
+    if node == node.parent.left:
+        return 2 * findNodeIndex(tree, node.parent) + 1
+    else:
+        return 2 * findNodeIndex(tree, node.parent) + 2
+
+def findLevelIndex(tree, node):
+    nodeIndex = findNodeIndex(tree, node)
+    level = int(math.log2(1 + nodeIndex))
+    above = 2**level - 1
+
+    return nodeIndex - above
+
+
 # Calculates a radius such that the text within will fit into the circle
 def calculateRadius(key):
     if(10 + (len(str(key))) * 1.2 > 12.4):
@@ -816,7 +873,7 @@ def calculateRadius(key):
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     global fibHeap
-    # global redBlackTree
+    global redBlackTree
     
     # reset data structures
     skipList = SkipList()
@@ -843,19 +900,19 @@ def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     global fibHeap
-    # global rbt
+    global redBlackTree
 
     # do not insert duplicates
     if(skipList.find(num) != None):
         return
-    # check in fib heap
-    # check in rbt
 
     skipList.animateFind(num, canvas1, insertColor, True)    # draw with delays
     skipList.insert(num)
     skipList.animateFind(num, canvas1, insertColor, False)   # redraw with no delays
     fibHeap.insert(num)
     fibHeap.drawFibHeap(canvas2)
+    redBlackTree.insert(num)
+    redBlackTree.drawRBTree(canvas3)
     root.after(delaySelect.get())
     root.update()
 
@@ -867,8 +924,8 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 # Animates the removal of a specified data point from each of the three data structures
 def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global fibHeap
-    # global rbt
+    global fibHeap
+    global redBlackTree
 
     skipList.animateFind(num, canvas1, removeColor, True)    # draw with delays
     skipList.remove(num)
@@ -876,6 +933,9 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     fibHeap.delete(int(num))
     fibHeap.findList.clear()
     fibHeap.drawFibHeap(canvas2)
+    redBlackTree.remove(num)
+    redBlackTree.drawRBTree(canvas3)
+
     root.after(delaySelect.get())
     root.update()
     skipList.animateFind(num, canvas1, removeColor, False)    # draw with delays
@@ -886,9 +946,10 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
 def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     # global fibHeap
-    # global redBlackTree
+    global redBlackTree
 
     skipList.animateFind(num, canvas1, findColor, True)
+    redBlackTree.animateFindRBT(num, canvas3, findColor)
     root.update()
     
     # fibHeap
@@ -962,7 +1023,7 @@ canvas2Label.grid(row=0, column=1, padx=5, pady=5)
 canvas2 = Canvas(root, width=canvasWidth, height=canvasHeight, bg="gray")
 canvas2.grid(row=1, column=1, padx=10, pady=5)
 # canvas3 label
-canvas3Label = Label(root, text="Canvas 3", bg="white", fg="black") # DEBUG, change "Canvas 3" to correct data structure
+canvas3Label = Label(root, text="Red-Black Tree", bg="white", fg="black") # DEBUG, change "Canvas 3" to correct data structure
 canvas3Label.grid(row=2, column=0, padx=5, pady=5)
 # canvas3
 canvas3 = Canvas(root, width=canvasWidth, height=canvasHeight, bg="gray")
