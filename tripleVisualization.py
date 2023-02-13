@@ -460,32 +460,34 @@ class FibonacciHeap:
         yInc = (canvasHeight - 100) / (height + 1)
         self.drawFib(self.min, canvas, rootOffset, 50, rootOffset, yInc, rootList)
 
+    def animateFind(self, canvas, num): 
+        canvas.delete("all")
+        self.drawFibHeap(canvas)
+        self.findList.clear()
+        self.find(self.min, num)
+        
+        rootList = [node for node in self.iterate(self.min)]
+        height = max(node.degree for node in rootList)
+        rootOffset = ((canvasWidth - 100)) / (len(rootList) + height)
+        yInc = (canvasHeight - 100) / (height + 1)
+        self.highlightFind(self.min, canvas, rootOffset, 50, rootOffset, yInc, rootList)
+
     def drawFib(self, node, canvas, x, y, rootOffset, yInc, rootList):
         if(node == self.min):
             color = 'cyan'
             textColor = "black"
-            node.drawFibNode(canvas, x, y, color, textColor)
-            root.update()
         else:
             color = nodeColor
             textColor = "black"
-            node.drawFibNode(canvas, x, y, color, textColor)
-            root.update()
-        if(node in self.findList):
-            color = findColor
-            textColor = "white"
-            node.drawFibNode(canvas, x, y, color, textColor)
-            root.after(delaySelect.get())   # delay
-            root.update()
-        # node.drawFibNode(canvas, x, y, color, textColor)
+        node.drawFibNode(canvas, x, y, color, textColor)
         radius = calculateRadius(node.key)
         totalSpace = rootOffset/2
         offset = -totalSpace * (node.degree - 1) / 2
         child = node.child
         for childTree in range(node.degree):
             canvas.create_line(x, y + radius, x + offset, y + yInc)
-            self.drawFib(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
-             # offset from siblings
+            self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
+            # offset from siblings
             if(child != node.child.left):
                 offset = offset * (childTree)
             if(child.right == node.child.left):
@@ -495,15 +497,33 @@ class FibonacciHeap:
         if node in rootList and node.right != self.min:
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
-            # root.update()
-            self.drawFib(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
+            self.highlightFind(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
 
-    def animateFind(self, canvas, val):
-        canvas.delete("all")
-        self.drawFibHeap(canvas)
-        self.findList.clear()
-        self.find(self.min, val)
-        self.drawFibHeap(canvas)
+    def highlightFind(self, node, canvas, x, y, rootOffset, yInc, rootList):
+        if(node in self.findList):
+            color = findColor
+            textColor = "white"
+            node.drawFibNode(canvas, x, y, color, textColor)
+            root.after(delaySelect.get())   # delay
+            root.update()
+        radius = calculateRadius(node.key)
+        totalSpace = rootOffset/2
+        offset = -totalSpace * (node.degree - 1) / 2
+        child = node.child
+        for childTree in range(node.degree):
+            canvas.create_line(x, y + radius, x + offset, y + yInc)
+            self.drawFib(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
+            # offset from siblings
+            if(child != node.child.left):
+                offset = offset * (childTree)
+            if(child.right == node.child.left):
+                offset = offset * (childTree) + 50
+            child = child.right
+        #rootList
+        if node in rootList and node.right != self.min:
+            canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
+            canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
+            self.drawFib(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
 
 # Red Black Tree Code
 
@@ -732,7 +752,6 @@ class RBTree:
     def getLevels(self):
         # Initialize list to return
         listOfLevels = []
-
         def getLevelsHelper(node, l):
             # If node's value is 0 (at leaf), return
             if node.key == 0:
@@ -745,7 +764,6 @@ class RBTree:
             listOfLevels[l].append(node)
             getLevelsHelper(node.left, l+1)
             getLevelsHelper(node.right, l+1)
-
         getLevelsHelper(self.root, 0)
 
         return listOfLevels
@@ -783,25 +801,32 @@ def calculateRadius(key):
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     global fibHeap
-    # global redBlackTree
+    global redBlackTree
     
     # reset data structures
     skipList = SkipList()
     redBlackTree = RBTree()
     fibHeap = FibonacciHeap()
 
+    # insert all elements in list
     for index, num in enumerate(data):
+        # skip list
         if(index != 0):
             skipList.animateFind(num, canvas1, insertColor, True)    # draw with delays
             skipList.insert(num)
             skipList.animateFind(num, canvas1, insertColor, False)   # redraw with no delays
         else:
             skipList.insert(num)
-        redBlackTree.insert(num)
+        # fib heap
         fibHeap.insert(num)
+        fibHeap.drawFibHeap(canvas2)
+        # red black tree
+        redBlackTree.insert(num)
         redBlackTree.drawRBTree(canvas3)
+
         root.after(delaySelect.get())   # delay after every data structure is updated
         root.update()
+
     skipList.drawSkipList(canvas1)
     fibHeap.drawFibHeap(canvas2)
     # rbt
@@ -825,30 +850,32 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     fibHeap.insert(num)
     # fib heap
     fibHeap.drawFibHeap(canvas2)
-    root.after(delaySelect.get())
-    root.update()
-
     # rbt
 
     root.after(delaySelect.get())   # delay after every data structure is updated
+    root.update()
 
 # Animates the removal of a specified data point from each of the three data structures
 def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
-    # global fibHeap
+    global fibHeap
     # global rbt
 
+    # skip list
     skipList.animateFind(num, canvas1, removeColor, True)    # draw with delays
     skipList.remove(num)
+    root.after(delaySelect.get())
+    root.update()
+    skipList.animateFind(num, canvas1, removeColor, False)    # draw with delays
+    # fib heap
     fibHeap.findList.clear()
     fibHeap.delete(int(num))
     fibHeap.findList.clear()
     fibHeap.drawFibHeap(canvas2)
-    root.after(delaySelect.get())
-    root.update()
-    skipList.animateFind(num, canvas1, removeColor, False)    # draw with delays
+    # red black tree
 
     root.after(delaySelect.get())   # delay after every data structure is updated
+    root.update()
 
 # Animates the search for a specified data point in each of the three data structures
 def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
