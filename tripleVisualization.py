@@ -8,7 +8,6 @@ from tkinter import *
 import random
 import time
 import math
-import sys
 
 # Skip List Code
 
