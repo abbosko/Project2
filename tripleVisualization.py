@@ -247,13 +247,11 @@ class FibNode:
         self.k = 'N'
     
     def drawFibNode(self, canvas: Canvas, X, Y, color):
-        radius = 10 + len(str(self.key)) * 1.2   # determine radius of node based on number of digits
+        radius = calculateRadius(self.key)
         # currX = index * ((canvas.winfo_width() - padX) / len(rootList)) + padX
         # currY = (canvas.winfo_height()- padY) / 2
         canvas.create_oval(X-radius, Y-radius, X+radius, Y+radius, fill=color)
         canvas.create_text(X, Y, text=str(self.key), fill="black")
-    
-        return radius
 
 # fib heap class
 class FibonacciHeap:
@@ -347,7 +345,6 @@ class FibonacciHeap:
 
     def extract_min(self):
         if(self.min == None):
-            # print("Heap empty, can't extract")
             return
         else:
             oldMin = self.min
@@ -445,93 +442,61 @@ class FibonacciHeap:
 
     def delete(self, val):
         self.findList.clear()
-        if(self.min == None):
-            print("Error: Heap Empty")
-        elif(self.min.key == val):
+        if(self.min.key == val and self.min != None):
             self.findList.append(self.min)
             self.extract_min()
         else:
             self.finder = None
             self.find(self.min, val)
             node = self.finder
-            if(node == None):
-                print("not found")
-            else:
+            if(node != None):
                 # Decreasing the value of the node to new min
                 self.decrease_key(node, self.min.key - 1)
                 # Calling Extract_min function to delete node
                 self.extract_min()
- 
-    def display(self):
-        ptr1 = self.min
-        if(ptr1 == None):
-            print("The Heap is Empty")
-        else:
-            print("The root nodes of Heap are: ")
-            print(ptr1.key, "->", end='')
-            ptr = ptr1.right
-            while(ptr != ptr1):
-                print(ptr.key,"->", end='')
-                ptr = ptr.right
-            print()
-            print("Node count", self.nodeCount)
     
     def drawFibHeap(self, canvas): 
         canvas.delete("all")
         rootList = [node for node in self.iterate(self.min)]
         height = max(node.degree for node in rootList)
-
         rootOffset = ((canvasWidth - 100))/ (len(rootList) + height)
-        yinc = (canvasHeight - 100) / (height + 1)
-    
-        self.drawFib(self.min, canvas, rootOffset, 50, rootOffset, yinc, rootList)
+        yInc = (canvasHeight - 100) / (height + 1)
+        self.drawFib(self.min, canvas, rootOffset, 50, rootOffset, yInc, rootList)
 
-    def drawFib(self, node, canvas,  x, y, rootOffset, yinc, rootList):
-        
-        if(node == self.min): color = 'cyan'
-        else: color = 'yellow'
-
-        if(node in self.findList): color = 'violet'
-      
-
-        # if(x < 50): x = 50
-       
-        radius = node.drawFibNode(canvas, x,y, color)
-       
-
+    def drawFib(self, node, canvas,  x, y, rootOffset, yInc, rootList):
+        if(node == self.min):
+            color = 'cyan'
+        else:
+            color = 'yellow'
+        if(node in self.findList):
+            color = 'violet'
+        node.drawFibNode(canvas, x,y, color)
+        radius = calculateRadius(node.key)
         totalSpace = rootOffset/2
         offset = -totalSpace  * (node.degree -1) / 2
-
-       
         child = node.child
         for childTree in range(node.degree):
-            canvas.create_line(x, y + radius, x + offset, y + yinc)
-            self.drawFib(child, canvas, x + offset, y + yinc, rootOffset, yinc, rootList)
-            
+            canvas.create_line(x, y + radius, x + offset, y + yInc)
+            self.drawFib(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
              # offset from siblings
             if(child != node.child.left):
                 offset = offset * (childTree)
-                
-            
             if(child.right == node.child.left):
                 offset = offset * (childTree) + 50
-               
-            
             child = child.right
-        
         #rootList
         if node in rootList and node.right != self.min:
-            canvas.create_line(x+ radius, y, x + rootOffset - radius, y, arrow=LAST)
-            canvas.create_line(x+ radius, y, x + rootOffset - radius, y, arrow=FIRST)
-            self.drawFib(node.right, canvas,  x + rootOffset, y, rootOffset, yinc, rootList)
+            canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
+            canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
+            self.drawFib(node.right, canvas,  x + rootOffset, y, rootOffset, yInc, rootList)
 
     def fibFind(self, canvas, val):
         canvas.delete("all")
         self.drawFibHeap(canvas)
         self.findList.clear()
-        
         self.find(self.min, val)
         self.drawFibHeap(canvas)
+
 # Red Black Tree Code
 
 # red black tree node class
@@ -557,7 +522,6 @@ class RBTree:
         a.right = b.left        #right child of a becomes left child of b
         if b.left != self.NULL:
             b.left.parent = a
- 
         b.parent = a.parent     #parent of b changes to become parent of a
         if a.parent == None:
             self.root = b
@@ -573,7 +537,6 @@ class RBTree:
         a.left = b.right        #left child of a becomes right child of b
         if b.right != self.NULL:
             b.right.parent = a
- 
         b.parent = a.parent
         if a.parent == None:
             self.root = b
@@ -599,18 +562,14 @@ class RBTree:
 
     def removeNodeHelper(self, node, key):
         c = self.NULL
-
         while node != self.NULL: #find node that has particular keyue in it
             if node.key == key:
                 c = node         #store in c
- 
             if node.key <= key:
                 node = node.right
             else:
                 node = node.left
- 
         if c == self.NULL:       #key not found in the tree
-            #print("key not found\n")
             return
  
         b = c
