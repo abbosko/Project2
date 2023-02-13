@@ -10,80 +10,6 @@ import time
 import math
 import sys
 
-# Linked List Code
-
-class LinkedList:
-    def __init__(self):
-        self.next = None
-
-    def insert(self, value):
-        currNode = self
-        while(currNode.next != None and currNode.next.value < value):
-            currNode = currNode.next
-        if(currNode.next == None):
-            newNode = Node(value)
-            currNode.next = newNode
-        elif(currNode.next.value >= value):
-            newNode = Node(value, currNode.next)
-            currNode.next = newNode
-
-    # non-functional, dummy
-    def remove(self, value) -> bool:
-        return False
-
-    def __len__(self):
-        return len(self.asList())
-
-    def asList(self) -> list:
-        returnList = []
-        currNode = self
-        if(type(currNode) != LinkedList):
-            returnList.append(currNode.value)
-        while(currNode.next != None):
-            currNode = currNode.next
-            returnList.append(currNode.value)
-        return returnList
-
-    def drawLinkedList(self, canvas: Canvas):
-        global padX
-        global padY
-        canvas.delete("all")
-        if(self.next == None or len(self) < 1):   # Do not draw anything if the LinkedList is empty
-            return
-        thisData = self.asList()
-        currNode = self.next
-        for index, node in enumerate(currNode.asList()):   # While there are nodes remaining
-            currNode.drawNode(index, thisData, canvas, padX, padY, nodeColor)
-
-class Node(LinkedList):
-    def __init__(self, value, next=None):
-        super().__init__()
-        self.value = value
-        self.next = next
-        self.sizeData = None
-    
-    def changeValue(self, value):
-        self.value = value
-
-    def drawNode(self, index, data, canvas: Canvas, padX, padY, color):
-        radius = calculateRadius(self.value)
-        currX = index * ((getCanvasX(canvas) - padX) / len(data)) + padX
-        currY = (getCanvasY(canvas) - padY) / 2
-        canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
-        canvas.create_text(currX, currY, text=str(data[index]), fill="black")
-
-        nextIndex = index + 1
-        if(nextIndex > len(data) - 1):
-            return
-        else:
-            # draw arrows between each node
-            nextX = (index + 1) * ((getCanvasX(canvas) - padX) / len(data)) + padX
-            nextY = (getCanvasY(canvas) - padY) / 2
-            arrowLength = (nextX - currX) * 0.5    # arrow length as a function of line length
-            canvas.create_line(currX+radius, currY, nextX-radius, nextY, fill="black")
-            canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY+math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
-            canvas.create_line(nextX-radius-math.sqrt(arrowLength), nextY-math.sqrt(arrowLength), nextX-radius, nextY, fill="black")
-
 # Skip List Code
 
 # picks the height for a node
@@ -823,7 +749,7 @@ def calculateRadius(key):
 def populateAll(data, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     global skipList
     # global fibHeap
-    global redBlackTree
+    # global redBlackTree
     
     # reset data structures
     skipList = SkipList()
@@ -863,7 +789,6 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     root.update()
 
     # fibHeap
-
     # rbt
 
     root.after(delaySelect.get())   # delay after every data structure is updated
@@ -891,6 +816,7 @@ def findInAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     skipList.animateFind(num, canvas1, findColor, True)
     root.update()
     
+    # fibHeap
     # RBT
 
     root.after(delaySelect.get())   # delay after every data structure is updated
@@ -947,7 +873,6 @@ spinboxWidth = 5
 skipList = SkipList()  # create Skip List
 redBlackTree = RBTree() # create RBT
 fibHeap = FibonacciHeap()   # create Fib Heap
-linkedList3 = LinkedList()  # DEBUG
 
 # canvas1 label
 canvas1Label = Label(root, text="Skip List", bg="white", fg="black")

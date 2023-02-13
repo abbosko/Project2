@@ -3,9 +3,7 @@ from tkinter import *
 import random
 import time
 import math
-import sys
 
-# maxDegree = int(input("Max degree of tree: "))
 maxDegree = 5
 tree = []
 q = 0
