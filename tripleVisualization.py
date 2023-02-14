@@ -243,7 +243,6 @@ class FibNode:
         self.parent = self.left = self.right = self.child = None
         self.color = 'N'     # for find
         self.mark = False    # flag for find 
-        self.k = 'N'
     
     def drawFibNode(self, canvas: Canvas, X, Y, color, textColor):
         radius = calculateRadius(self.key)
@@ -340,7 +339,7 @@ class FibonacciHeap:
             yield node
             node = node.right
 
-    def extract_min(self):
+    def extract_min(self,canvas):
         if(self.min == None):
             return
         else:
@@ -354,15 +353,18 @@ class FibonacciHeap:
                         self.min = i
                     i.parent = None
             self.removeFromRootList(oldMin)
+            self.drawFibHeap(canvas)
+            root.after(delaySelect.get())
+            root.update()
             self.min = oldMin.right
             if(oldMin == oldMin.right):
                 self.min = None
             else: 
                 self.min = oldMin.right
-                self.consolidate()
+                self.consolidate(canvas)
             self.nodeCount -= 1
 
-    def consolidate(self):
+    def consolidate(self, canvas):
         aux = [None] * int(math.log(self.nodeCount) * 2)
         # get root list
         array = [node for node in self.iterate(self.min)]
@@ -379,6 +381,9 @@ class FibonacciHeap:
                     first = second
                     second = temp
                 self.addToTree(second, first) # link tree
+                self.drawFibHeap(canvas)
+                root.after(delaySelect.get())
+                root.update()
                 aux[degree] = None #reset to 0
                 degree += 1    
             aux[degree] = first
@@ -389,25 +394,31 @@ class FibonacciHeap:
                 if self.min is None or i.key < self.min.key:
                     self.min = i
     
-    def cut(self, node, parent):
+    def cut(self, node, parent, canvas):
         # no longer a child so remove from child list 
         self.removeFromChildList(parent, node)
         parent.degree -= 1
         self.addToRootList(node)
+        self.drawFibHeap(canvas)
+        root.after(delaySelect.get())
+        root.update()
         node.parent = None
         node.mark = False
     
-    def cascadeCut(self, node):
+    def cascadeCut(self, node, canvas):
         ptr = node.parent
         if(ptr != None):
             if(node.mark == False):
+                self.drawFibHeap(canvas)
+                root.after(delaySelect.get())
+                root.update()
                 node.mark = True
             else:
                 self.cut(node, ptr)
                 self.cascadeCut(ptr)
 
     # decrease key used for delete
-    def decrease_key(self, node, val):
+    def decrease_key(self, node, val, canvas):
         # not decreasing
         if val > node.key:
             return None
@@ -416,8 +427,8 @@ class FibonacciHeap:
         parent = node.parent
         # if node is now smaeller than its parent, cut and refactor
         if parent != None and node.key < parent.key:
-            self.cut(node, parent)
-            self.cascadeCut(parent)
+            self.cut(node, parent, canvas)
+            self.cascadeCut(parent, canvas)
         # if node is now smallest, set as min
         if node.key < self.min.key:
             self.min = node
@@ -437,20 +448,20 @@ class FibonacciHeap:
                 self.find(start.right, val)
         ptr.color = 'N'
 
-    def delete(self, val):
+    def delete(self, val, canvas):
         self.findList.clear()
         if(self.min.key == val and self.min != None):
-            self.findList.append(self.min)
-            self.extract_min()
+            # self.findList.append(self.min)
+            self.extract_min(canvas)
         else:
             self.finder = None
             self.find(self.min, val)
             node = self.finder
             if(node != None):
                 # Decreasing the value of the node to new min
-                self.decrease_key(node, self.min.key - 1)
+                self.decrease_key(node, self.min.key - 1, canvas)
                 # Calling Extract_min function to delete node
-                self.extract_min()
+                self.extract_min(canvas)
     
     def drawFibHeap(self, canvas): 
         canvas.delete("all")
@@ -465,6 +476,11 @@ class FibonacciHeap:
         self.drawFibHeap(canvas)
         self.findList.clear()
         self.find(self.min, num)
+        for idx, node in enumerate(self.findList):
+            if node.key == num:
+                findIdx = idx
+                break;
+        self.findList = self.findList[0:findIdx + 1]
         
         rootList = [node for node in self.iterate(self.min)]
         height = max(node.degree for node in rootList)
@@ -511,7 +527,6 @@ class FibonacciHeap:
         offset = -totalSpace * (node.degree - 1) / 2
         child = node.child
         for childTree in range(node.degree):
-            canvas.create_line(x, y + radius, x + offset, y + yInc)
             self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
             # offset from siblings
             if(child != node.child.left):
@@ -521,8 +536,6 @@ class FibonacciHeap:
             child = child.right
         #rootList
         if node in rootList and node.right != self.min:
-            canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
-            canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
             self.highlightFind(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
 
 # Red Black Tree Code
@@ -910,8 +923,9 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     root.update()
     skipList.animateFind(num, canvas1, removeColor, False)    # draw with delays
     # fib heap
-    fibHeap.findList.clear()
-    fibHeap.delete(int(num))
+    
+    fibHeap.animateFind(canvas2, num)
+    fibHeap.delete(int(num), canvas2)
     fibHeap.findList.clear()
     fibHeap.drawFibHeap(canvas2)
     # red black tree
