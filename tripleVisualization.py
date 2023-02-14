@@ -744,7 +744,17 @@ class RBTree:
         if key < node.key:
             return self.searchTree(node.left, key)
         return self.searchTree(node.right, key)
-
+    
+    def minimum(self, node):
+        while node.left != self.NULL:
+            node = node.left
+        return node
+    
+    def maximum(self, node):
+        while node.right != self.NULL:
+            node = node.right
+        return node
+    
     def getLevels(self):
         # Initialize list to return
         listOfLevels = []
