@@ -612,7 +612,6 @@ class RBTree:
                 node = node.left
         if c == self.NULL:       # key not found in the tree
             return
- 
         b = c
         b_original_color = b.color          # store color
         if c.left == self.NULL:             # if left child is NULL
@@ -787,7 +786,7 @@ class RBTree:
 
         return listOfLevels
     
-    def drawRBTree(self, canvas: Canvas, findList=[], findColor = 'magenta'):
+    def drawRBTree(self, canvas: Canvas, findList=[], outlineColor="magenta"):
         canvas.delete("all")
         allLevels = self.getLevels()
         # Draw the lines first
@@ -816,8 +815,14 @@ class RBTree:
                 currDegree = degreeIndex
                 currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
                 radius = calculateRadius(node.key)
+                # TODO: check if the outlineColor can be changed based on findList
+                # may require removing outlineColor = ...
+                # may require removing width=5 from create_oval
+                # TODO: fix outlineWidth for root node
                 color = findColor if node in findList else 'red' if node.color else 'black'
-                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color)
+                outlineColor = outlineColor if node in findList else 'red' if node.color else 'black'
+                outlineWidth = 5 if node in findList else 0
+                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color, outline=outlineColor, width=outlineWidth)
                 canvas.create_text(currX, currY, text=node.key, fill="white")
             
     def animateFind(self, num, canvas: Canvas, findColor):
@@ -839,7 +844,6 @@ class RBTree:
 def findNodeIndex(tree, node):
     if node.parent == None or node.parent == tree.NULL:
         return 0
-    
     if node == node.parent.left:
         return 2 * findNodeIndex(tree, node.parent) + 1
     else:
@@ -848,7 +852,7 @@ def findNodeIndex(tree, node):
 def findLevelIndex(tree, node):
     nodeIndex = findNodeIndex(tree, node)
     level = int(math.log2(1 + nodeIndex))
-    above = 2**level - 1
+    above = 2 ** level - 1
 
     return nodeIndex - above
 
@@ -913,6 +917,7 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     fibHeap.insert(num)
     fibHeap.drawFibHeap(canvas2)
     # red black tree
+    redBlackTree.animateFind(num, canvas2, insertColor) # draw before insert
     redBlackTree.insert(num)
     redBlackTree.drawRBTree(canvas3)
     # delay after every data structure is updated
