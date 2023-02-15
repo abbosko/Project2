@@ -476,10 +476,11 @@ class FibonacciHeap:
         self.drawFibHeap(canvas)
         self.findList.clear()
         self.find(self.min, num)
+        findIdx = 0
         for idx, node in enumerate(self.findList):
             if node.key == num:
                 findIdx = idx
-                break;
+                break
         self.findList = self.findList[0:findIdx + 1]
         
         rootList = [node for node in self.iterate(self.min)]
@@ -522,7 +523,6 @@ class FibonacciHeap:
             node.drawFibNode(canvas, x, y, color, textColor)
             root.after(delaySelect.get())   # delay
             root.update()
-        radius = calculateRadius(node.key)
         totalSpace = rootOffset/2
         offset = -totalSpace * (node.degree - 1) / 2
         child = node.child
