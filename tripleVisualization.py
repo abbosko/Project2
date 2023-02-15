@@ -917,7 +917,7 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     fibHeap.insert(num)
     fibHeap.drawFibHeap(canvas2)
     # red black tree
-    redBlackTree.animateFind(num, canvas2, insertColor) # draw before insert
+    redBlackTree.animateFind(num, canvas3, insertColor) # draw before insert
     redBlackTree.insert(num)
     redBlackTree.drawRBTree(canvas3)
     # delay after every data structure is updated
