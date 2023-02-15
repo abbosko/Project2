@@ -41,7 +41,7 @@ class SkipNode:
 class SkipList:
     def __init__(self):
         self.head = SkipNode()
-
+ 
     # gets an array of the last node on each level whose key is less than the given key
     # helper function
     def getPath(self, key):
@@ -363,32 +363,6 @@ class FibonacciHeap:
                 self.min = oldMin.right
                 self.consolidate(canvas)
             self.nodeCount -= 1
-
-    def animateExtractMin(self, canvas: Canvas):
-        if(self.min == None):
-            return
-        else:
-            oldMin = self.min
-            if(oldMin.child != None):   # if the min has children
-                # for every child of old minimum add to root list
-                children = [x for x in self.iterate(oldMin.child)]
-                for i in children:
-                    self.addToRootList(i)
-                    if(i.key < self.min.key):
-                        self.min = i
-                    i.parent = None
-            self.removeFromRootList(oldMin)
-            self.min = oldMin.right
-            if(oldMin == oldMin.right):
-                self.min = None
-            else: 
-                self.min = oldMin.right
-                self.consolidate(canvas)
-            self.nodeCount -= 1
-            # animate
-            self.drawFibHeap(canvas)
-            root.after(delaySelect.get())   # delay
-            root.update()
 
     def consolidate(self, canvas):
         aux = [None] * int(math.log(self.nodeCount) * 2)
