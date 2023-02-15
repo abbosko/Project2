@@ -826,17 +826,29 @@ class RBTree:
                 canvas.create_text(currX, currY, text=node.key, fill="white")
             
     def animateFind(self, num, canvas: Canvas, findColor):
-        nodesTraversed = []
+        canvas.delete("all")
+        self.drawRBTree(canvas)
         current = self.root
+        allLevels = self.getLevels()
+        currDegree = 0
         while (current != None and current != self.NULL):
-            nodesTraversed.append(current)
+            levelIndex = findLevelIndex(self, current)
+            currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
+            currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
+            radius = calculateRadius(current.key)
+            outlineColor = 'red' if current.color else 'black'
+            canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=findColor, outline=outlineColor, width=5)
+            canvas.create_text(currX, currY, text=current.key, fill="white")
             if current.key == num:
                 break
             elif current.key > num:
+                currDegree += 1
                 current = current.left
             else:
                 current = current.right
-        self.drawRBTree(canvas, nodesTraversed, findColor)
+                currDegree += 1
+            root.after(delaySelect.get())
+            root.update()
 
 # Functions for RBT
 
@@ -942,6 +954,7 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     fibHeap.findList.clear()
     fibHeap.drawFibHeap(canvas2)
     # red black tree
+    redBlackTree.animateFind(num, canvas3, removeColor)
     redBlackTree.remove(num)
     redBlackTree.drawRBTree(canvas3)
     # delay after every data structure is updated
