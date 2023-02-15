@@ -242,11 +242,7 @@ class FibNode:
         self.degree = 0
         self.parent = self.left = self.right = self.child = None
         self.color = 'N'     # for find
-<<<<<<< HEAD
         self.mark = False    # flag for find 
-=======
-        self.mark = False    # flag for find
->>>>>>> 712459ac5a0f520b82a640e1f72757b646d7777e
     
     def drawFibNode(self, canvas: Canvas, X, Y, color, textColor):
         radius = calculateRadius(self.key)
