@@ -339,7 +339,7 @@ class FibonacciHeap:
             yield node
             node = node.right
 
-    def extract_min(self,canvas):
+    def extract_min(self, canvas):
         if(self.min == None):
             return
         else:
@@ -364,6 +364,32 @@ class FibonacciHeap:
                 self.consolidate(canvas)
             self.nodeCount -= 1
 
+    def animateExtractMin(self, canvas: Canvas):
+        if(self.min == None):
+            return
+        else:
+            oldMin = self.min
+            if(oldMin.child != None):   # if the min has children
+                # for every child of old minimum add to root list
+                children = [x for x in self.iterate(oldMin.child)]
+                for i in children:
+                    self.addToRootList(i)
+                    if(i.key < self.min.key):
+                        self.min = i
+                    i.parent = None
+            self.removeFromRootList(oldMin)
+            self.min = oldMin.right
+            if(oldMin == oldMin.right):
+                self.min = None
+            else: 
+                self.min = oldMin.right
+                self.consolidate(canvas)
+            self.nodeCount -= 1
+            # animate
+            self.drawFibHeap(canvas)
+            root.after(delaySelect.get())   # delay
+            root.update()
+
     def consolidate(self, canvas):
         aux = [None] * int(math.log(self.nodeCount) * 2)
         # get root list
@@ -381,10 +407,11 @@ class FibonacciHeap:
                     first = second
                     second = temp
                 self.addToTree(second, first) # link tree
+                # animate
                 self.drawFibHeap(canvas)
-                root.after(delaySelect.get())
+                root.after(delaySelect.get())   # delay
                 root.update()
-                aux[degree] = None #reset to 0
+                aux[degree] = None # reset to 0
                 degree += 1    
             aux[degree] = first
         self.min = None
@@ -471,7 +498,7 @@ class FibonacciHeap:
         yInc = (canvasHeight - 100) / (height + 1)
         self.drawFib(self.min, canvas, rootOffset, 50, rootOffset, yInc, rootList)
 
-    def animateFind(self, canvas, num): 
+    def animateFind(self, canvas, num, color="magenta"): 
         canvas.delete("all")
         self.drawFibHeap(canvas)
         self.findList.clear()
@@ -487,18 +514,17 @@ class FibonacciHeap:
         height = max(node.degree for node in rootList)
         rootOffset = ((canvasWidth - 100)) / (len(rootList) + height)
         yInc = (canvasHeight - 100) / (height + 1)
-        self.highlightFind(self.min, canvas, rootOffset, 50, rootOffset, yInc, rootList)
+        self.highlightFind(self.min, canvas, rootOffset, 50, rootOffset, yInc, rootList, color)
 
     def drawFib(self, node, canvas, x, y, rootOffset, yInc, rootList):
-        if(node == self.min):
-            color = 'cyan'
-            textColor = "black"
+        if(node == self.min):   # head
+            color = "cyan"
         else:
             color = nodeColor
-            textColor = "black"
+        textColor = "black"
         node.drawFibNode(canvas, x, y, color, textColor)
         radius = calculateRadius(node.key)
-        totalSpace = rootOffset/2
+        totalSpace = rootOffset / 2
         offset = -totalSpace * (node.degree - 1) / 2
         child = node.child
         for childTree in range(node.degree):
@@ -510,15 +536,14 @@ class FibonacciHeap:
             if(child.right == node.child.left):
                 offset = offset * (childTree) + 50
             child = child.right
-        #rootList
+        # rootList
         if node in rootList and node.right != self.min:
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
             canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
             self.drawFib(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
 
-    def highlightFind(self, node, canvas, x, y, rootOffset, yInc, rootList):
+    def highlightFind(self, node, canvas: Canvas, x, y, rootOffset, yInc, rootList, color):
         if(node in self.findList):
-            color = findColor
             textColor = "white"
             node.drawFibNode(canvas, x, y, color, textColor)
             root.after(delaySelect.get())   # delay
@@ -527,7 +552,7 @@ class FibonacciHeap:
         offset = -totalSpace * (node.degree - 1) / 2
         child = node.child
         for childTree in range(node.degree):
-            self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
+            self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList, nodeColor)
             # offset from siblings
             if(child != node.child.left):
                 offset = offset * (childTree)
@@ -536,7 +561,7 @@ class FibonacciHeap:
             child = child.right
         #rootList
         if node in rootList and node.right != self.min:
-            self.highlightFind(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList)
+            self.highlightFind(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList, color)
 
 # Red Black Tree Code
 
@@ -910,8 +935,8 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     skipList.animateFind(num, canvas1, insertColor, True)    # draw with delays
     skipList.insert(num)
     skipList.animateFind(num, canvas1, insertColor, False)   # redraw with no delays
-    fibHeap.insert(num)
     # fib heap
+    fibHeap.insert(num)
     fibHeap.drawFibHeap(canvas2)
     # red black tree
     redBlackTree.insert(num)
@@ -933,9 +958,8 @@ def removeFromAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     root.update()
     skipList.animateFind(num, canvas1, removeColor, False)    # draw with delays
     # fib heap
-    
-    fibHeap.animateFind(canvas2, num)
-    fibHeap.delete(int(num), canvas2)
+    fibHeap.animateFind(canvas2, num, removeColor)
+    fibHeap.delete(num, canvas2)
     fibHeap.findList.clear()
     fibHeap.drawFibHeap(canvas2)
     # red black tree
