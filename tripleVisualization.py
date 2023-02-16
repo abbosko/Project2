@@ -415,8 +415,8 @@ class FibonacciHeap:
                 root.update()
                 node.mark = True
             else:
-                self.cut(node, ptr)
-                self.cascadeCut(ptr)
+                self.cut(node, ptr, canvas)
+                self.cascadeCut(ptr, canvas)
 
     # decrease key used for delete
     def decrease_key(self, node, val, canvas):
@@ -495,6 +495,8 @@ class FibonacciHeap:
             color = "cyan"
         else:
             color = nodeColor
+            if(node.mark == True):
+                color = 'green'
         textColor = "black"
         node.drawFibNode(canvas, x, y, color, textColor)
         radius = calculateRadius(node.key)
@@ -506,7 +508,7 @@ class FibonacciHeap:
             self.drawFib(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList)
             # offset from siblings
             if(child != node.child.left):
-                offset = offset * (childTree)
+                offset = offset * (childTree) + 10
             if(child.right == node.child.left):
                 offset = offset * (childTree) + 50
             child = child.right
@@ -526,10 +528,10 @@ class FibonacciHeap:
         offset = -totalSpace * (node.degree - 1) / 2
         child = node.child
         for childTree in range(node.degree):
-            self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList, nodeColor)
+            self.highlightFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList, color)
             # offset from siblings
             if(child != node.child.left):
-                offset = offset * (childTree)
+                offset = offset * (childTree) + 10
             if(child.right == node.child.left):
                 offset = offset * (childTree) + 50
             child = child.right
