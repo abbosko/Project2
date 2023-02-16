@@ -990,12 +990,14 @@ def clearCanvas():
 data = []   # data values to use in the structures
 def generateData(elements, minInt, maxInt):
     global data
-    data = []
-    for i in range(0, elements):
-        tempInt = random.randint(minInt, maxInt)
-        while tempInt in data:  # no duplicate values
-            tempInt = random.randint(minInt, maxInt)
-        data.append(tempInt)
+    data = [12, 57, 26, 67, 16, 69, 94, 71, 50, 41]
+    # global data
+    # data = []
+    # for i in range(0, elements):
+    #     tempInt = random.randint(minInt, maxInt)
+    #     while tempInt in data:  # no duplicate values
+    #         tempInt = random.randint(minInt, maxInt)
+    #     data.append(tempInt)
 
 root = Tk()
 root.title("Data Structures Visualization")
@@ -1062,7 +1064,7 @@ buttonWindow.grid(row=1, column=0, padx=5, pady=5)
 testButton = Button(buttonWindow, text="Start All", command=lambda : populateAll(data, canvas1, canvas2, canvas3), bg="green", fg="white")
 testButton.grid(row=0, column=0, padx=5, pady=5)
 # Generate data when button pressed
-randomButton = Button(buttonWindow, text="Randomize Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg=nodeColor, fg="black")
+randomButton = Button(buttonWindow, text="Reset Data", command=lambda : generateData(int(elementsVar.get()), int(minimumVar.get()), int(maximumVar.get())), bg=nodeColor, fg="black")
 randomButton.grid(row=0, column=1, padx=5, pady=5)
 # Insert selected value
 insertButton = Button(buttonWindow, text="Insert Value", command=lambda : insertIntoAll(int(insertSelect.get()), canvas1, canvas2, canvas3), bg=insertColor, fg="white")
