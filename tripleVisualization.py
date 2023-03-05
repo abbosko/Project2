@@ -213,7 +213,7 @@ def insertIntoAll(num, canvas1: Canvas, canvas2: Canvas, canvas3: Canvas):
     animateSkipFind(num, canvas1,skipList, insertColor, False)   # redraw with no delays
     # fib heap
     fibHeap.insert(num)
-    drawFibHeap(canvas2, fibHeap, insertColor)
+    drawFibHeap(canvas2, fibHeap, nodeColor)
     # red black tree
     animateRBTFind(num, canvas3, insertColor, redBlackTree) # draw before insert
     redBlackTree.insert(num)
