@@ -1,6 +1,5 @@
 import math 
 from tkinter import *
-import time
 from constants import *
 
 class FibNode:
