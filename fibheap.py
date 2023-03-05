@@ -225,7 +225,7 @@ class FibonacciHeap:
                 # Calling Extract_min function to delete node
                 self.extract_min(canvas, delay, root, color)
 
-       
+# fibheap animation
 def drawFibNode(canvas: Canvas, X, Y, color, textColor, node):
     radius = calculateRadius(node.key)
     canvas.create_oval(X-radius, Y-radius, X+radius, Y+radius, fill=color)
