@@ -1,14 +1,11 @@
 import random
 from tkinter import *
 
-# picks the height for a node
 def pickHeight():
     height = 1
     while (random.choice([True, False])):
         height += 1
     return height
-
-# skip list node class
 class SkipNode:
     def __init__(self, key=None, height=0):
         self.key = key
@@ -21,12 +18,10 @@ class SkipNode:
         if(type(__o) != SkipNode):  # cannot be equal to another type of object
             return False
         return self.key == __o.key
-
-# skip list class
 class SkipList:
     def __init__(self):
         self.head = SkipNode()
-
+ 
     # gets an array of the last node on each level whose key is less than the given key
     # helper function
     def getPath(self, key):
@@ -71,9 +66,7 @@ class SkipList:
     # inserts a new node with the given key
     def insert(self, key):
         # creates a new node with the given key
-        height = pickHeight()
-        print("inserting " + str(key) + " at height " + str(height))
-        newNode = SkipNode(key, height)
+        newNode = SkipNode(key, pickHeight())
         # adds another level of pointer to the head, if necessary
         while len(self.head.next) < len(newNode.next):
             self.head.next.append(None)
@@ -92,12 +85,12 @@ class SkipList:
             return
         for i in range(len(nodeToRemove.next)):
             path[i].next[i] = nodeToRemove.next[i]
-        # adjust length of head's next pointers
         while(None in self.head.next):
             self.head.next.remove(None)
 
     # returns list of nodes in row r
     def getRow(self, r):
+        # iterate through given row r
         nodes = []
         nodePtr = self.head
         while nodePtr.next[r] != None:
@@ -130,7 +123,6 @@ class SkipList:
                 else:
                     column = rows[i].index(ptr)
                 fullPath.append((i, column))
-                print("adding " + str(i) + ", " + str(column) + " to list")
                 ptr = ptr.next[i]
             # -1 indicates Head
             if ptr.key == None:
@@ -138,20 +130,9 @@ class SkipList:
             else:
                 column = rows[i].index(ptr)
             fullPath.append((i, column))
-            print("adding " + str(i) + ", " + str(column) + " to list")
-        
+        # add final element
         if ptr.next[0] and ptr.next[0].key == key:
             fullPath.append((0, rows[0].index(ptr.next[0])))
         # return the FULL path taken down the list
         # tuple of (row, column)
         return fullPath
-
-# def main():
-#     sl = SkipList()
-#     for i in range (1, 50):
-#         sl.insert(i)
-#     fullPath = sl.getFullPath(40)
-#     print(fullPath)
-
-# if __name__ == "__main__":
-#     main()
