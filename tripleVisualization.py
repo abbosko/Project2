@@ -274,14 +274,12 @@ def clearCanvas():
 data = []   # data values to use in the structures
 def generateData(elements, minInt, maxInt):
     global data
-    data = [12, 57, 26, 67, 16, 69, 94, 71, 50, 41]
-    # global data
-    # data = []
-    # for i in range(0, elements):
-    #     tempInt = random.randint(minInt, maxInt)
-    #     while tempInt in data:  # no duplicate values
-    #         tempInt = random.randint(minInt, maxInt)
-    #     data.append(tempInt)
+    data = []
+    for i in range(0, elements):
+        tempInt = random.randint(minInt, maxInt)
+        while tempInt in data:  # no duplicate values
+            tempInt = random.randint(minInt, maxInt)
+        data.append(tempInt)
 
 root = Tk()
 root.title("Data Structures Visualization")
