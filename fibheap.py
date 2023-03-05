@@ -1,4 +1,13 @@
 import math 
+from tkinter import *
+import time
+
+
+def calculateRadius(key):
+    if(10 + (len(str(key))) * 1.2 > 12.4):
+        return 10 + (len(str(key))) * 1.2   # determine radius of node based on length of the string
+    else:
+        return 12.4
 
 class FibNode:
     def __init__(self, key):
@@ -8,11 +17,13 @@ class FibNode:
         self.color = 'N'     # for find
         self.mark = False    # flag for find 
 
+# fib heap class
 class FibonacciHeap:
     def __init__(self):
         self.min = None
         self.nodeCount = 0
         self.finder = None
+        self.findList = []
     
     def addToRootList(self, node):
         if self.min is None:
@@ -96,9 +107,9 @@ class FibonacciHeap:
             yield node
             node = node.right
 
-    def extract_min(self):
+    def extract_min(self, canvas, delay, root, color):
         if(self.min == None):
-            print("Heap empty, can't extract")
+            return
         else:
             oldMin = self.min
             if(oldMin.child != None):   # if the min has children
@@ -110,17 +121,20 @@ class FibonacciHeap:
                         self.min = i
                     i.parent = None
             self.removeFromRootList(oldMin)
+            drawFibHeap(canvas, self, color)
+            root.after(delay)
+            root.update()
             self.min = oldMin.right
             if(oldMin == oldMin.right):
                 self.min = None
             else: 
                 self.min = oldMin.right
-                self.consolidate()
+                self.consolidate(canvas, root, delay, color)
             self.nodeCount -= 1
 
-    def consolidate(self):
+    def consolidate(self, canvas, root, delay, color):
         aux = [None] * int(math.log(self.nodeCount) * 2)
-        #get root list
+        # get root list
         array = [node for node in self.iterate(self.min)]
         while array != []:
             first = array[0]
@@ -135,7 +149,11 @@ class FibonacciHeap:
                     first = second
                     second = temp
                 self.addToTree(second, first) # link tree
-                aux[degree] = None #reset to 0
+                # animate
+                drawFibHeap(canvas, self, color)
+                root.after(delay)   # delay
+                root.update()
+                aux[degree] = None # reset to 0
                 degree += 1    
             aux[degree] = first
         self.min = None
@@ -145,25 +163,31 @@ class FibonacciHeap:
                 if self.min is None or i.key < self.min.key:
                     self.min = i
     
-    def cut(self, node, parent):
+    def cut(self, node, parent, canvas, root, delay, color):
         # no longer a child so remove from child list 
         self.removeFromChildList(parent, node)
         parent.degree -= 1
         self.addToRootList(node)
+        drawFibHeap(canvas, self, color)
+        root.after(delay)
+        root.update()
         node.parent = None
         node.mark = False
     
-    def cascadeCut(self, node):
+    def cascadeCut(self, node, canvas, root, delay, color):
         ptr = node.parent
         if(ptr != None):
             if(node.mark == False):
+                drawFibHeap(canvas, self, color)
+                root.after(delay)
+                root.update()
                 node.mark = True
             else:
-                self.cut(node, ptr)
-                self.cascadeCut(ptr)
+                self.cut(node, ptr, canvas, root, delay, color)
+                self.cascadeCut(ptr, canvas, root, delay, color)
 
     # decrease key used for delete
-    def decrease_key(self, node, val):
+    def decrease_key(self, node, val, canvas, root, delay, color):
         # not decreasing
         if val > node.key:
             return None
@@ -172,14 +196,15 @@ class FibonacciHeap:
         parent = node.parent
         # if node is now smaeller than its parent, cut and refactor
         if parent != None and node.key < parent.key:
-            self.cut(node, parent)
-            self.cascadeCut(parent)
+            self.cut(node, parent, canvas, root, delay, color)
+            self.cascadeCut(parent, canvas, root, delay, color)
         # if node is now smallest, set as min
         if node.key < self.min.key:
             self.min = node
 
     def find(self, start,  val):
         ptr = start
+        self.findList.append(ptr)
         ptr.color = 'Y'
         if(ptr.key == val):
             ptr.color = 'N'
@@ -192,72 +217,98 @@ class FibonacciHeap:
                 self.find(start.right, val)
         ptr.color = 'N'
 
-    def delete(self, val):
-        if(self.min == None):
-            print("Error: Heap Empty")
-        elif(self.min.key == val):
-            self.extract_min()
+    def delete(self, val, canvas, root, delay, color):
+        self.findList.clear()
+        if(self.min.key == val and self.min != None):
+            # self.findList.append(self.min)
+            self.extract_min(canvas, delay, root, color)
         else:
             self.finder = None
             self.find(self.min, val)
             node = self.finder
-            if(node == None):
-                print("not found")
-            else:
+            if(node != None):
                 # Decreasing the value of the node to new min
-                self.decrease_key(node, self.min.key - 1)
+                self.decrease_key(node, self.min.key - 1, canvas, root, delay, color)
                 # Calling Extract_min function to delete node
-                self.extract_min()
- 
-    def display(self):
-        ptr1 = self.min
-        if(ptr1 == None):
-            print("The Heap is Empty")
-        else:
-            print("The root nodes of Heap are: ")
-            print(ptr1.key, "->", end='')
-            ptr = ptr1.right
-            while(ptr != ptr1):
-                print(ptr.key,"->", end='')
-                ptr = ptr.right
-            print()
-            print("Node count", self.nodeCount)
-          
+                self.extract_min(canvas, delay, root, color)
 
+       
+def drawFibNode(canvas: Canvas, X, Y, color, textColor, node):
+    radius = calculateRadius(node.key)
+    canvas.create_oval(X-radius, Y-radius, X+radius, Y+radius, fill=color)
+    canvas.create_text(X, Y, text=str(node.key), fill=textColor)
 
-'''## for testing purposes
-if __name__ == '__main__':
-    fib_heap = FibonacciHeap()
-    fib_heap.insert(7)
-    fib_heap.insert(30)
-    fib_heap.insert(24)
-    fib_heap.insert(26)
-    fib_heap.insert(35)
-    fib_heap.insert(46)
-    fib_heap.insert(23)
-    fib_heap.insert(17)
-    fib_heap.insert(3)
-    fib_heap.insert(8)
+def drawFibHeap(canvas, fibHeap: FibonacciHeap, nodeColor): 
+    canvas.delete("all")
+    rootList = [node for node in fibHeap.iterate(fibHeap.min)]
+    height = max(node.degree for node in rootList)
+    rootOffset = ((800 - 100)) / (len(rootList) + height)
+    yInc = (400 - 100) / (height + 1)
+    drawFib(fibHeap.min, canvas, rootOffset, 50, rootOffset, yInc, rootList, fibHeap, nodeColor)
 
-    fib_heap.display()
-    
-    fib_heap.delete(26)
-    fib_heap.display()
+def animateFibFind(canvas, num, fibHeap: FibonacciHeap, root, delay, color="magenta"): 
+    canvas.delete("all")
+    drawFibHeap(canvas, fibHeap, "yellow")
+    fibHeap.findList.clear()
+    fibHeap.find(fibHeap.min, num)
+    findIdx = 0
+    for idx, node in enumerate(fibHeap.findList):
+        if node.key == num:
+            findIdx = idx
+            break
+    fibHeap.findList = fibHeap.findList[0:findIdx + 1]
 
-    fib_heap.delete(8)
-    fib_heap.display()
+    rootList = [node for node in fibHeap.iterate(fibHeap.min)]
+    height = max(node.degree for node in rootList)
+    rootOffset = ((800 - 100)) / (len(rootList) + height)
+    yInc = (400 - 100) / (height + 1)
+    highlightFibFind(fibHeap.min, canvas, rootOffset, 50, rootOffset, yInc, rootList, color, fibHeap, root, delay)
 
-    fib_heap.delete(35)
-    fib_heap.display()
+def drawFib(node, canvas, x, y, rootOffset, yInc, rootList, fibHeap: FibonacciHeap, nodeColor):
+    if(node == fibHeap.min):   # head
+        color = "cyan"
+    else:
+        color = nodeColor
+        if(node.mark == True):
+            color = 'green'
+    textColor = "black"
+    drawFibNode(canvas, x, y, color, textColor, node)
+    radius = calculateRadius(node.key)
+    totalSpace = rootOffset / 2
+    offset = -totalSpace * (node.degree - 1) / 2
+    child = node.child
+    for childTree in range(node.degree):
+        canvas.create_line(x, y + radius, x + offset, y + yInc)
+        drawFib(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList, fibHeap, nodeColor)
+        # offset from siblings
+        if(child != node.child.left):
+            offset = offset * (childTree) + 10
+        if(child.right == node.child.left):
+            offset = offset * (childTree) + 50
+        child = child.right
+    # rootList
+    if node in rootList and node.right != fibHeap.min:
+        canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=LAST)
+        canvas.create_line(x + radius, y, x + rootOffset - radius, y, arrow=FIRST)
+        drawFib(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList, fibHeap, nodeColor)
 
-    fib_heap.delete(17)
-    fib_heap.display()
-    
-    fib_heap.delete(3)
-    fib_heap.display()
-
-    fib_heap.delete(23)
-    fib_heap.display()
-   
-
-# insert, delete, and find '''
+def highlightFibFind(node, canvas: Canvas, x, y, rootOffset, yInc, rootList, color, fibHeap: FibonacciHeap, root, delay):
+    if(node in fibHeap.findList):
+        textColor = "white"
+        drawFibNode(canvas, x, y, color, textColor, node)
+        root.after(delay)   # delay
+        root.update()
+    totalSpace = rootOffset/2
+    offset = -totalSpace * (node.degree - 1) / 2
+    child = node.child
+    for childTree in range(node.degree):
+        highlightFibFind(child, canvas, x + offset, y + yInc, rootOffset, yInc, rootList, color, fibHeap, root, delay)
+        # offset from siblings
+        if(child != node.child.left):
+            offset = offset * (childTree) + 10
+        if(child.right == node.child.left):
+            offset = offset * (childTree) + 50
+        child = child.right
+    #rootList
+    if node in rootList and node.right != fibHeap.min:
+        highlightFibFind(node.right, canvas, x + rootOffset, y, rootOffset, yInc, rootList, color, fibHeap, root, delay)
