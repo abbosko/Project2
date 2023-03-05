@@ -1,13 +1,7 @@
 import math 
 from tkinter import *
 import time
-
-
-def calculateRadius(key):
-    if(10 + (len(str(key))) * 1.2 > 12.4):
-        return 10 + (len(str(key))) * 1.2   # determine radius of node based on length of the string
-    else:
-        return 12.4
+from constants import *
 
 class FibNode:
     def __init__(self, key):

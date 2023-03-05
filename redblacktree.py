@@ -1,6 +1,7 @@
 import sys
 from tkinter import *
 import math
+from constants import *
 
 listOfLevels = []
 # Red Black Tree Code
@@ -251,73 +252,8 @@ class RBTree:
         getLevelsHelper(self.root, 0)
 
         return listOfLevels
-    
-    def drawRBTree(self, canvas: Canvas, findList=[], outlineColor="magenta"):
-        canvas.delete("all")
-        allLevels = self.getLevels()
-        # Draw the lines first
-        # For each level
-        for degreeIndex, level in enumerate(allLevels):
-            # For each value in level
-            currDegree = degreeIndex
-            currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
-            for node in allLevels[degreeIndex]:
-                levelIndex = findLevelIndex(self, node)
-                currDegree = degreeIndex
-                currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
-                radius = calculateRadius(node.key)
-                # Getting parent's X and Y position and drawing line to it
-                if degreeIndex != 0:
-                    parentY = currY - ((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1))
-                    parentX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree-1) + 1)) * (levelIndex//2 + 1))
-                    canvas.create_line(currX, currY, parentX, parentY, fill='black')
-        # Draw the nodes second, so they are drawn over lines
-        for degreeIndex, level in enumerate(allLevels):
-            # For each value in level
-            currDegree = degreeIndex
-            currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
-            for node in allLevels[degreeIndex]:
-                levelIndex = findLevelIndex(self, node)
-                currDegree = degreeIndex
-                currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
-                radius = calculateRadius(node.key)
-                # TODO: check if the outlineColor can be changed based on findList
-                # may require removing outlineColor = ...
-                # may require removing width=5 from create_oval
-                # TODO: fix outlineWidth for root node
-                color = findColor if node in findList else 'red' if node.color else 'black'
-                outlineColor = outlineColor if node in findList else 'red' if node.color else 'black'
-                outlineWidth = 5 if node in findList else 0
-                canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color, outline=outlineColor, width=outlineWidth)
-                canvas.create_text(currX, currY, text=node.key, fill="white")
-            
-    def animateFind(self, num, canvas: Canvas, findColor):
-        canvas.delete("all")
-        self.drawRBTree(canvas)
-        current = self.root
-        allLevels = self.getLevels()
-        currDegree = 0
-        while (current != None and current != self.NULL):
-            levelIndex = findLevelIndex(self, current)
-            currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
-            currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
-            radius = calculateRadius(current.key)
-            outlineColor = 'red' if current.color else 'black'
-            canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=findColor, outline=outlineColor, width=5)
-            canvas.create_text(currX, currY, text=current.key, fill="white")
-            if current.key == num:
-                break
-            elif current.key > num:
-                currDegree += 1
-                current = current.left
-            else:
-                current = current.right
-                currDegree += 1
-            root.after(delaySelect.get())
-            root.update()
 
-# Functions for RBT
-
+# Animation of RBT
 # Same idea as calculation of index of children from binary heap represented as an array
 def findNodeIndex(tree, node):
     if node.parent == None or node.parent == tree.NULL:
@@ -333,3 +269,64 @@ def findLevelIndex(tree, node):
     above = 2 ** level - 1
 
     return nodeIndex - above
+
+def animateRBTFind(num, canvas: Canvas, findColor, rbt: RBTree, root, delay):
+    canvas.delete("all")
+    drawRBTree(canvas, rbt)
+    current = rbt.root
+    allLevels = rbt.getLevels()
+    currDegree = 0
+    while (current != None and current != rbt.NULL):
+        levelIndex = findLevelIndex(rbt, current)
+        currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
+        currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
+        radius = calculateRadius(current.key)
+        outlineColor = 'red' if current.color else 'black'
+        canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=findColor, outline=outlineColor, width=5)
+        canvas.create_text(currX, currY, text=current.key, fill="white")
+        if current.key == num:
+            break
+        elif current.key > num:
+            currDegree += 1
+            current = current.left
+        else:
+            current = current.right
+            currDegree += 1
+        root.after(delay)
+        root.update()
+
+# Red Black Tree Animation
+def drawRBTree(canvas: Canvas, rbt: RBTree, findList=[], outlineColor="magenta"):
+    canvas.delete("all")
+    allLevels = rbt.getLevels()
+    # Draw the lines first
+    # For each level
+    for degreeIndex, level in enumerate(allLevels):
+        # For each value in level
+        currDegree = degreeIndex
+        currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
+        for node in allLevels[degreeIndex]:
+            levelIndex = findLevelIndex(rbt, node)
+            currDegree = degreeIndex
+            currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
+            radius = calculateRadius(node.key)
+            # Getting parent's X and Y position and drawing line to it
+            if degreeIndex != 0:
+                parentY = currY - ((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1))
+                parentX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree-1) + 1)) * (levelIndex//2 + 1))
+                canvas.create_line(currX, currY, parentX, parentY, fill='black')
+    # Draw the nodes second, so they are drawn over lines
+    for degreeIndex, level in enumerate(allLevels):
+        # For each value in level
+        currDegree = degreeIndex
+        currY = (((getCanvasY(canvas) + (padY * 2)) / (len(allLevels) + 1)) * (currDegree + 1)) - padY
+        for node in allLevels[degreeIndex]:
+            levelIndex = findLevelIndex(rbt, node)
+            currDegree = degreeIndex
+            currX = padX + (((getCanvasX(canvas) - (padX * 2)) / (math.pow(2, currDegree) + 1)) * (levelIndex + 1))
+            radius = calculateRadius(node.key)
+            color = 'magenta' if node in findList else 'red' if node.color else 'black'
+            outlineColor = outlineColor if node in findList else 'red' if node.color else 'black'
+            outlineWidth = 5 if node in findList else 0
+            canvas.create_oval(currX-radius, currY-radius, currX+radius, currY+radius, fill=color, outline=outlineColor, width=outlineWidth)
+            canvas.create_text(currX, currY, text=node.key, fill="white")
