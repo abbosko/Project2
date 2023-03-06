@@ -44,9 +44,9 @@ When deleting an element, the algorithm searches for the value. Nodes that have 
 When finding an element, the animation colors visited nodes pink. When it finds a root element of a tree that is less than the element it is searching for, it traverses the tree. If/when the element is found, it terminates.
 
 ### Red-Black Tree Animation Overview
-Once elements are inserted, much like a normal binary search tree, for every node the left child will have a lesser value and the right child will have a bigger value. The nodes are colored red and black accordingly.
+Once elements are inserted, much like a normal binary search tree, for every node the left child will have a lesser value and the right child will have a greater value. The nodes are colored red and black accordingly.
 
-In node insertion/deletion, the program will traverse the red black tree like a binary search tree until it gets to a leaf node/finds the node to delete. At this stage, a set of rules and rotations will occur in order to preserve two main properties:
+In node insertion/deletion/searching, the program will traverse the red black tree like a binary search tree until it gets to a leaf node or finds where the insertion/deletion/search must take place. Nodes are colored blue, red, or pink (insertion, deletion, search respectively) as they are traversed through. At this stage, a set of rules and rotations will occur in order to preserve two main properties:
 
 1. The child of a red node is always black (there can never be two consecutive red nodes).
 2. Every path from the root to the leaf will have the same number of black nodes.
