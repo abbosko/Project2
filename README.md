@@ -1,5 +1,5 @@
 ## CS 470 Project 2
-Scott Ratchford, Sam Gaines, Abbie Bosko, Audrey Kim, Summer Hawkins, Kevin Lee
+Scott Ratchford, Sam Gaines, Abbie Bosko, Audrey Kim, Summer Hawkins, Navamin Leelarburanathanakoon
 
 ### Project Description
 This project compares three data structures: 
@@ -41,9 +41,14 @@ When finding an element, the animation colors visited nodes pink. When it finds 
 
 
 ### Red-Black Tree Animation Overview
+Once elements are inserted, much like a normal binary search tree, for every node the left child will have a lesser value and the right child will have a bigger value. The nodes are colored red and black accordingly.
 
+In node insertion/deletion, the program will traverse the red black tree like a binary search tree until it gets to a leaf node/finds the node to delete. At this stage, a set of rules and rotations will occur in order to preserve two main properties:
+
+1. The child of a red node is always black (there can never be two consecutive red nodes).
+2. Every path from the root to the leaf will have the same number of black nodes.
 
 ### Assignments:
 * Skiplist: Scott, Sam
 * Fib Heap: Abbie, Audrey
-* RBT: Summer, Kevin
+* RBT: Summer, Navamin
